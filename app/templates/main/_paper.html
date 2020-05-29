@@ -1,0 +1,10 @@
+{{ paper.title }}<br>
+{{ paper.authors }}<br>
+<a href='{{ paper.link }}'>{{ paper.link }}</a><br>
+{{ paper.abstract }}<br>
+<br>
+Submitted by: {{ paper.subber.firstname }} {{paper.subber.lastname }}<br>
+{% if paper.volunteer %}Volunteer: {{ paper.volunteer.firstname }} {{ paper.volunter.lastname }}<br>{% endif %}
+{% if paper.comment %}{{ paper.comment }}<br>{% endif %}
+form goes here<br>
+<hr>

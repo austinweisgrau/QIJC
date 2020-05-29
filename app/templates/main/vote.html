@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+{% for paper in papers %}
+{% include 'main/_paper.html' %}
+{% endfor %}
+<br>
+<br>
+Final form submit button here.
+{% endblock %}

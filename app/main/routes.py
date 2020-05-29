@@ -6,6 +6,7 @@ from werkzeug.urls import url_parse
 from app.main.forms import PaperSubmissionForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Paper
+from app.main.scraper import Scraper
 
 @bp.route('/')
 @bp.route('/index')
@@ -14,6 +15,11 @@ def index():
     papers = Paper.query.all()
     return render_template('main/index.html', title='website', papers=papers)
 
+@bp.route('/vote')
+@login_required
+def vote():
+    papers = Paper.query.filter_by(voted=False).all()
+    return render_template('main/vote.html', title='Vote', papers=papers)
 
 @bp.route('/user/<username>')
 @login_required
@@ -28,7 +34,12 @@ def user(username):
 def submit():
     form = PaperSubmissionForm()
     if form.validate_on_submit():
-        p = Paper(link=form.link.data, subber=current_user)
+        scraper = Scraper()
+        scraper.get(form.link.data)
+        authors = ", ".join(scraper.authors)
+        p = Paper(link=form.link.data, subber=current_user,
+                  authors=authors, abstract=scraper.abstract,
+                  title=scraper.title)
         db.session.add(p)
         db.session.commit()
         if form.volunteering.data:

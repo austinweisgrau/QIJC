@@ -10,6 +10,8 @@ def load_user(id):
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
+    firstname = db.Column(db.String(64))
+    lastname = db.Column(db.String(64))
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
 
@@ -29,7 +31,8 @@ class User(UserMixin, db.Model):
         return sp
 
     def hotpoints(self):
-        pass
+        hp = 0
+        return hp
 
 class Paper(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -37,6 +40,12 @@ class Paper(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     link = db.Column(db.String(140), unique=True)
     abstract = db.Column(db.String(512))
+    authors = db.Column(db.String(256))
+    voted = db.Column(db.Boolean, default=False)
+    score = db.Column(db.Float)
+    comment = db.Column(db.String(256))
+    
+    # Relationships
     subber_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     volunteer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
