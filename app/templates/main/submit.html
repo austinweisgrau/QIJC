@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Submit Paper</h1>
+<form action='' method='post'>
+  {{ form.hidden_tag() }}
+  <p>
+    {{ form.link.label }}<br>
+    {{ form.link(size=32) }}<br>
+    {% for error in form.link.errors %}
+    <span style='color: red;'>[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {{ form.volunteering.label }}<br>
+    {{ form.volunteering(size=32) }}<br>
+    {% for error in form.volunteering.errors %}
+    <span style='color: red;'>[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    Automatically handles arXiv, Phys. Rev., and Nature journals.
+    Otherwise, <a href='{{ url_for('main.submit_m') }}'>submit manually.</a>
+  </p>
+  <p>
+    {{ form.comments.label }}<br>
+    {{ form.comments(size=32) }}<br>
+    {% for error in form.comments.errors %}
+    <span style='color: red;'>[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {{ form.submit() }}
+  </p>
+</form>
+<br><hr><br>
+{% for paper in papers %}
+{{ paper.title }}<br>
+{% endfor %}
+
+{% endblock %}

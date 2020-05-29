@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+Profile page for {{ user.username }}
+<br>
+Hot points: <br>
+Sum points: <br>
+<br>
+{% if user.username == current_user.username %}
+This is your own user page.<br>
+{% endif %}
+<br>
+Submissions:<br>
+{% for paper in subs %}
+title: {{ paper.title }}<br>
+link: {{ paper.link }}<br>
+abstract: {{ paper.abstract }}<br><br>
+{% endfor %}
+
+{% endblock %}
