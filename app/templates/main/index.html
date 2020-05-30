@@ -1,8 +1,37 @@
 {% extends 'base.html' %}
 
 {% block content %}
-Hello {{ current_user.username }}
-{% for thicc in papers %}
-<div><p>{{ thicc.subber.username }} submitted: <b>{{ thicc.link }}</b></p></div>
-{% endfor %}
+<style>
+  table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 5px;
+      text-align: left;
+}
+</style>
+
+Next presenter: <br>
+Topic: <br>
+<hr>
+Announcements: <br>
+Schedule: <br>
+New: <br>
+<hr>
+Directory/Scoreboard:<br>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Hotpoints</th>
+    <th>Sumpoints</th>
+  </tr>
+  {% for user in users %}
+  <tr>
+    <td><a href="{{ url_for('main.user', username=user.username) }}">{{ user.firstname }}</a></th>
+    <td>{{ user.email }}</th>
+    <td>{{ user.hotpoints() }}</th>
+    <td>{{ user.sumpoints() }}</th>
+  </tr>
+  {% endfor %}
+</table>
 {% endblock %}

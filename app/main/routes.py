@@ -12,8 +12,8 @@ from app.main.scraper import Scraper
 @bp.route('/index')
 @login_required
 def index():
-    papers = Paper.query.all()
-    return render_template('main/index.html')
+    users = User.query.all()
+    return render_template('main/index.html', users=users)
 
 @bp.route('/vote')
 @login_required
