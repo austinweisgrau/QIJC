@@ -1,15 +1,20 @@
+import os
+from dotenv import load_dotenv
 import requests
 from xml.etree import ElementTree as et
+from flask import flash
+
+load_dotenv()
+SN_KEY = os.getenv('SN_API')
 
 class Scraper(object):
+    failed = 0
+    error = 0
 
     def arxiv_scrape(self, link):
-        id = link.split('/')
-        if id[-1] != "":
-            id = id[-1]
-        else:
-            id = id[-2]
-        url = 'http://export.arxiv.org/api/query?id_list=' + id
+        link_str = link.split('?')[0]
+        link_str = link_str.split('/')[-1]
+        url = 'http://export.arxiv.org/api/query?id_list=' + link_str
         xml = requests.get(url).content
         tree = et.fromstring(xml)
         authors = []
@@ -27,9 +32,13 @@ class Scraper(object):
         return authors, abstract, title
     
     def get(self, link):
+        authors = abstract = title = ''
         if 'arxiv' in link:
             authors, abstract, title = self.arxiv_scrape(link)
-        #process link
         self.authors = authors
         self.abstract = abstract
         self.title = title
+        if (authors=='') and (abstract=='') and (title==''):
+            self.failed = 1
+        if title == 'error':
+            self.error = 1
