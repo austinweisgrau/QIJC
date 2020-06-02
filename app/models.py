@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
     lastname = db.Column(db.String(64))
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    admin = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -42,7 +43,8 @@ class Paper(db.Model):
     abstract = db.Column(db.String(512))
     authors = db.Column(db.String(256))
     voted = db.Column(db.Boolean, default=False)
-    score = db.Column(db.Float)
+    score_n = db.Column(db.Integer)
+    score_d = db.Column(db.Integer)
     comment = db.Column(db.String(256))
     
     # Relationships

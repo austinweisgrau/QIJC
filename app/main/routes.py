@@ -1,10 +1,13 @@
 from app import db #, app
 from app.main import bp
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import (Flask, render_template, request,
+                   flash, redirect, url_for)
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
-from app.main.forms import PaperSubmissionForm, ManualSubmissionForm
-from flask_login import current_user, login_user, logout_user, login_required
+from app.main.forms import (PaperSubmissionForm, ManualSubmissionForm,
+                            FullVoteForm)
+from flask_login import (current_user, login_user, logout_user,
+                         login_required)
 from app.models import User, Paper
 from app.main.scraper import Scraper
 
@@ -15,11 +18,28 @@ def index():
     users = User.query.all()
     return render_template('main/index.html', users=users)
 
-@bp.route('/vote')
+@bp.route('/vote', methods=['GET', 'POST'])
 @login_required
 def vote():
     papers = Paper.query.filter_by(voted=False).all()
-    return render_template('main/vote.html', title='Vote', papers=papers)
+    list_p = []
+    for paper in papers:
+        d = {str(paper.id): paper}
+        list_p.append(d)
+    voteform = FullVoteForm(votes=list_p)
+    voteforms = list(zip(papers, voteform.votes))
+    print(voteform.votes)
+    for i in range(len(voteform.data['votes'])):
+        paper = voteforms[i][0]
+        data = voteform.data['votes'][i]
+        if voteform.data['votes'][i]['vote_num']:
+            paper.score_n = data['vote_num']
+            paper.score_d = data['vote_den']
+            paper.voted = True
+            db.session.commit()
+            flash('Votes counted.')
+    return render_template('main/vote.html', title='Vote', showsub=True,
+                           voteform=voteform, voteforms=voteforms)
 
 @bp.route('/user/<username>')
 @login_required
@@ -55,25 +75,29 @@ def submit_m():
 def submit():
     form = PaperSubmissionForm()
     if form.validate_on_submit():
+        link_str = form.link.data.split('?')[0]
+        print(link_str)
         scraper = Scraper()
-        scraper.get(form.link.data)
+        scraper.get(link_str)
         if scraper.failed:
             flash('Scraping failed, submit manually.')
-            return redirect(url_for('submit_m'))
+            return redirect(url_for('main.submit_m'))
         if scraper.error:
             flash('Scraping error, check link or submit manually.')
-            return redirect(url_for('submit'))
+            return redirect(url_for('main.submit'))
         authors = ", ".join(scraper.authors)
         abstract = scraper.abstract
         title = scraper.title
-        p = Paper(link=form.link.data, subber=current_user,
+        comment_ = (str(current_user.firstname) + ': '
+                    + form.comments.data)
+        p = Paper(link=link_str, subber=current_user,
                   authors=authors, abstract=scraper.abstract,
-                  title=scraper.title, comment=form.comments.data)
+                  title=scraper.title, comment=comment_)
         db.session.add(p)
         db.session.commit()
         if form.volunteering.data:
             Paper.query.filter_by(
-                link=form.link.data).first().volunteer = current_user
+                link=link_str).first().volunteer = current_user
             db.session.commit()
         flash('Paper submitted.')
         return redirect(url_for('main.submit'))

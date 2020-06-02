@@ -2,10 +2,15 @@
 
 {% block content %}
 <br>
-{% for paper in papers %}
+<form action='' method='post'>
+{% for i in voteforms %}
+{% set paper = i[0] %}
 {% include 'main/_paper.html' %}
+{{ i[1].hidden_tag() }}
+Vote: {{ i[1].vote_num(size=1) }} / {{ i[1].vote_den(size=1) }}
+<hr>
 {% endfor %}
 <br>
-<br>
-Final form submit button here.
+{{ voteform.submit() }}
+</form>
 {% endblock %}

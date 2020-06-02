@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
 from app.auth.forms import LoginForm, RegistrationForm
+from app.auth.forms import InviteUserForm, ManageUserForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Paper
 
@@ -46,3 +47,42 @@ def register():
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register',
                            form=form)
+
+@bp.route('/manage', methods=['GET', 'POST'])
+@login_required
+def manage():
+    manageforms = []
+    if not current_user.admin:
+        flash('Admin privilege required to manage.')
+        return redirect(url_for('main.index'))
+    inviteform = InviteUserForm()
+    if inviteform.submit.data and inviteform.validate_on_submit():
+        user = User(email=inviteform.email.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Invitation sent.')
+        return redirect(url_for('auth.manage'))
+    users = User.query.all()
+    for user in users:
+        user.manage_form = ManageUserForm(user_=user.id)
+        manageforms.append(user.manage_form)
+    for form in manageforms:
+        if form.submit_.data and form.validate_on_submit():
+            if (form.action_.data == 'del') or (
+                    form.action2_.data == 'del'):
+                # Add a confirmation warning.
+                # This cannot be undone.
+                user = User.query.get(form.user_.data)
+                flash('Deleted {}.'.format(user))
+                db.session.delete(user)
+                db.session.commit()
+            elif form.action_.data == 'adm':
+                User.query.get(form.user_.data).admin = True
+                db.session.commit()
+            elif form.action2_.data == 'rma':
+                User.query.get(form.user_.data).admin = False
+                db.session.commit()
+            return redirect(url_for('auth.manage'))
+    return render_template('auth/manage.html', title='Manage',
+                           inviteform=inviteform,
+                           manageforms=manageforms, users=users)

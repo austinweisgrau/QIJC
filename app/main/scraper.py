@@ -12,9 +12,8 @@ class Scraper(object):
     error = 0
 
     def arxiv_scrape(self, link):
-        link_str = link.split('?')[0]
-        link_str = link_str.split('/')[-1]
-        url = 'http://export.arxiv.org/api/query?id_list=' + link_str
+        id = link.split('/')[-1]
+        url = 'http://export.arxiv.org/api/query?id_list=' + id
         xml = requests.get(url).content
         tree = et.fromstring(xml)
         authors = []

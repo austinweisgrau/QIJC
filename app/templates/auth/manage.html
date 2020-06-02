@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<br><hr>
+<h3>Invite new user:</h3>
+<form action='' method='post'>
+  {{ inviteform.hidden_tag() }}
+  <p>
+    {{ inviteform.email.label }}<br>
+    {{ inviteform.email(size=32) }}<br>
+    {% for error in inviteform.email.errors %}
+    <span style='color: red;'>[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {{ inviteform.submit() }}
+  </p>
+</form>
+<hr>
+<table>
+  <tr>
+    <th>Username</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Permissions</th>
+    <th>Actions</th>
+  </tr>
+  {% for user in users %}
+  <tr>
+    <td>{{ user.username }}</td>
+    <td>{{ user.firstname }} {{ user.lastname }}</td>
+    <td>{{ user.email }}</td>
+    <td>{% if user.admin %}admin{% else %}user{% endif %}</td>
+    <td>
+      {% if user != current_user %}
+      <form action='' method='post'>
+	{{ user.manage_form.hidden_tag() }}
+	{% if user.admin == True %}{{ user.manage_form.action2_() }}
+	{% else %} {{ user.manage_form.action_() }} {% endif %}
+	{% for error in user.manage_form.action_.errors %}
+	{{ error }}
+	{% endfor %}
+	{{ user.manage_form.submit_() }}
+      </form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}

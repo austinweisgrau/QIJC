@@ -1,5 +1,7 @@
+from flask import flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField
+from wtforms import SubmitField, SelectField, HiddenField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 from app.models import User
 
@@ -28,3 +30,27 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
+
+
+class InviteUserForm(FlaskForm):
+    email = StringField('New user email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Invite')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if (user is not None) and (user.username):
+            raise ValidationError('Email already registered.')
+        elif (user is not None):
+            raise ValidationError('User already invited. Resending invite email.')
+
+class ManageUserForm(FlaskForm):
+    action_ = SelectField('Action', 
+                          choices=[('del', 'Delete'),
+                                   ('adm', 'Make admin')],
+                          validate_choice=False)
+    action2_ = SelectField('Action',
+                           choices=[('del', 'Delete'),
+                                    ('rma', 'Remove admin')],
+                           validate_choice=False)
+    user_ = HiddenField('user_')
+    submit_ = SubmitField('>')

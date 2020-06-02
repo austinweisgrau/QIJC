@@ -1,14 +1,14 @@
+{% if showsub %}
+{{ paper.subber.firstname }}
+{% if paper.volunteer.firstname is defined %}
+&#8594;&nbsp;{{ paper.volunteer.firstname }}
+{% endif %}<br>
+{% endif %}
 {{ paper.title }}<br>
 {{ paper.authors }}<br>
 <a href='{{ paper.link }}'>{{ paper.link }}</a><br>
 {{ paper.abstract }}<br>
 <br>
-{% if showsub is sameas true %}
-Submitted by: {{ paper.subber.firstname }} {{paper.subber.lastname }}<br>
-{% endif %}
-{% if paper.volunteer.firstname is defined %}
-Volunteer: {{ paper.volunteer.firstname }} {{ paper.volunteer.lastname }}
-<br>
-{% endif %}
-{% if paper.comment %}{{ paper.comment }}<br>{% endif %}
-<hr>
+{% if showsub %}{% if paper.comment %}
+Comments:<br>{{ paper.comment }}<br>
+{% endif %}{% endif %}
