@@ -51,7 +51,8 @@ class Paper(db.Model):
     subber_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     volunteer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    subber = db.relationship('User', backref='subs', foreign_keys=[subber_id])
+    subber = db.relationship('User', backref='subs',
+                             foreign_keys=[subber_id])
     volunteer = db.relationship('User', backref='vols',
                              foreign_keys=[volunteer_id])
     

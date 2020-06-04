@@ -11,6 +11,8 @@ from flask_login import (current_user, login_user, logout_user,
 from app.models import User, Paper
 from app.main.scraper import Scraper
 
+last_month = datetime.today() - timedelta(days = 30)
+
 @bp.route('/')
 @bp.route('/index')
 @login_required
@@ -21,7 +23,12 @@ def index():
 @bp.route('/vote', methods=['GET', 'POST'])
 @login_required
 def vote():
-    papers = Paper.query.filter_by(voted=False).all()
+    papers_v = (Paper.query.filter_by(voted=False)
+              .filter(Paper.volunteer_id!=None)
+              .order_by(Paper.timestamp.desc()).all())
+    papers_ = (Paper.query.filter_by(voted=False)
+               .order_by(Paper.timestamp.desc()).all())
+    papers = papers_v + papers_
     list_p = []
     for paper in papers:
         d = {str(paper.id): paper}
@@ -45,10 +52,15 @@ def vote():
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
+    subs = (Paper.query.filter_by(subber=user)
+            .order_by(Paper.timestamp.desc()))[:10]
     return render_template('main/user.html', user=user,
-                           subs=user.subs, showsub=False)
+                           subs=subs, showsub=False)
 
-last_month = datetime.today() - timedelta(days = 30)
+@bp.route('/search', methods=['GET', 'POST'])
+@login_required
+def search():
+    return render_template('main/search.html')
 
 @bp.route('/submit_m', methods=['GET', 'POST'])
 @login_required
@@ -75,8 +87,7 @@ def submit_m():
 def submit():
     form = PaperSubmissionForm()
     if form.validate_on_submit():
-        link_str = form.link.data.split('?')[0]
-        print(link_str)
+        link_str = form.link.data.split('?')[0].split('.pdf')[0]
         scraper = Scraper()
         scraper.get(link_str)
         if scraper.failed:
@@ -101,6 +112,7 @@ def submit():
             db.session.commit()
         flash('Paper submitted.')
         return redirect(url_for('main.submit'))
-    papers = Paper.query.filter(Paper.timestamp >= last_month).all()
+    papers = (Paper.query.filter(Paper.timestamp >= last_month)
+              .order_by(Paper.timestamp.desc()).all())[:10]
     return render_template('main/submit.html', papers=papers,
                            title='Submit Paper', form=form, showsub=True)

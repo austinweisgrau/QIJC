@@ -16,9 +16,7 @@ class PaperSubmissionForm(FlaskForm):
             raise ValidationError('Only arxiv.org links are accepted.'
                                   + 'Consider submitting manually.')
         link_str = link.data.split('?')[0]
-        print('Validating with {link_str}')
         paper = Paper.query.filter_by(link=link_str).first()
-        print('Query turned up {paper}')
         if paper is not None:
             print('Validation error raised.')
             raise ValidationError('Link already submitted.')
