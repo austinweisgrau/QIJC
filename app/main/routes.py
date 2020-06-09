@@ -72,7 +72,8 @@ def history():
         print(len(papers))
         return render_template('main/history.html', papers=papers,
                                showvote=True, showsub=True)
-    weeks = [week.voted for week in Paper.query.distinct(Paper.voted)]
+    weeks = [paper.voted for paper
+             in Paper.query.group_by(Paper.voted).all()]
     return render_template('main/history.html', weeks=weeks)
 
 @bp.route('/submit_m', methods=['GET', 'POST'])
