@@ -42,7 +42,7 @@ class Paper(db.Model):
     link = db.Column(db.String(140), unique=True)
     abstract = db.Column(db.String(512))
     authors = db.Column(db.String(256))
-    voted = db.Column(db.Boolean, default=False)
+    voted = db.Column(db.String(128))
     score_n = db.Column(db.Integer)
     score_d = db.Column(db.Integer)
     comment = db.Column(db.String(256))

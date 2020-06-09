@@ -62,6 +62,19 @@ def user(username):
 def search():
     return render_template('main/search.html')
 
+@bp.route('/history')
+@login_required
+def history():
+    week = request.args.get('week', None)
+    if week:
+        print(week)
+        papers = Paper.query.filter_by(voted = week).all()
+        print(len(papers))
+        return render_template('main/history.html', papers=papers,
+                               showvote=True, showsub=True)
+    weeks = [week.voted for week in Paper.query.distinct(Paper.voted)]
+    return render_template('main/history.html', weeks=weeks)
+
 @bp.route('/submit_m', methods=['GET', 'POST'])
 @login_required
 def submit_m():
@@ -116,3 +129,4 @@ def submit():
               .order_by(Paper.timestamp.desc()).all())[:10]
     return render_template('main/submit.html', papers=papers,
                            title='Submit Paper', form=form, showsub=True)
+

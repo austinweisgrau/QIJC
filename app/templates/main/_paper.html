@@ -4,11 +4,13 @@
 &#8594;&nbsp;{{ paper.volunteer.firstname }}
 {% endif %}<br>
 {% endif %}
-{{ paper.title }}<br>
+<div style='color: red;'>{{ paper.title }}</div>
 {{ paper.authors }}<br>
 <a href='{{ paper.link }}'>{{ paper.link }}</a><br>
 {{ paper.abstract }}<br>
-<br>
 {% if showsub %}{% if paper.comment %}
-Comments:<br>{{ paper.comment }}<br>
+<div style='color: green;'>Comments:<br>{{ paper.comment }}</div>
 {% endif %}{% endif %}
+{% if showvote %}
+{{ paper.score_n }}/{{ paper.score_d }} votes.<br><br>
+{% endif %}

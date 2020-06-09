@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if papers %}
+Votes from {{ papers[0].voted }}<hr>
+{% for paper in papers %}
+{% include 'main/_paper.html' %}
+{% endfor %}
+{% else %}
+{% for week in weeks %}
+<a href='{{ url_for('main.history', week=week) }}'>{{ week }}</a><br>
+{% endfor %}
+{% endif %}
+
+{% endblock %}
