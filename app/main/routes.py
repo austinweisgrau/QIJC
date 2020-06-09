@@ -23,10 +23,10 @@ def index():
 @bp.route('/vote', methods=['GET', 'POST'])
 @login_required
 def vote():
-    papers_v = (Paper.query.filter_by(voted=False)
-              .filter(Paper.volunteer_id!=None)
+    papers_v = (Paper.query.filter(Paper.voted == False)
+              .filter(Paper.volunteer_id != None)
               .order_by(Paper.timestamp.desc()).all())
-    papers_ = (Paper.query.filter_by(voted=False)
+    papers_ = (Paper.query.filter(Paper.voted == False)
                .order_by(Paper.timestamp.desc()).all())
     papers = papers_v + papers_
     list_p = []
