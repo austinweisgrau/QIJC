@@ -94,13 +94,11 @@ def search():
         if form.sub_date.data and (form.sub_date.data!=''):
             dates = [datetime.strptime(i, '%d/%M/%Y') for i in
                      form.sub_date.data.split('-')]
-            flash((dates[0], dates[1], Paper.query.get(1).timestamp))
             d_queries.append((Paper.timestamp, dates[0], dates[1]))
         if form.vote_date.data and (form.vote_date.data!=''):
             dates = [datetime.strptime(i, '%d/%M/%Y') for i in
                      form.vote_date.data.split('-')]
-            flash((dates[0], dates[1], Paper.query.get(1).voted))
-            d_queries.append(Paper.voted, dates[0], dates[1])
+            d_queries.append((Paper.voted, dates[0], dates[1]))
         if form.subber.data and (form.subber.data!='None'):
             u_queries.append((Paper.subber_id, form.subber.data))
         if form.presenter.data and (form.presenter.data!='None'):
