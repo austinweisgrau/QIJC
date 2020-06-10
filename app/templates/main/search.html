@@ -1,9 +1,41 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<h1>Search Papers</h1>
+<form action='' method='post'>
+  {{ form.hidden_tag() }}
+  
+  {% macro field_(field) -%}
+  <p>
+  {{ field.label }}<br>
+  {{ field(size=64) }}<br>
+  {% for error in field.errors %}
+  <span style='color:red;'>{{ error }}</span>
+  {% endfor %}
+  </p>
+  {%- endmacro %}
 
-Search form:<br>
-<br>
-Search results:<br>
+  {% set formlist = [form.title, form.authors, form.sub_date, form.vote_date, form.abstract] %}
+  {% for item in formlist %}
+  {{ field_(item) }}
+  {% endfor %}
+  <ul style='list-style: none; margin: 0; padding: 0;'>
+    <li style='float: left; margin-left: 10px;'>
+      {{ form.subber.label }}<br>
+      {{ form.subber }}
+    </li>
+    <li style='float: left; margin-left: 10px;'>
+      {{ form.presenter.label }}<br>
+      {{ form.presenter }}
+    </li>
+  </ul><br><br><br>
+  {{ form.submit() }}<br>
+</form>
+{% if papers %}
+<hr>
+<h2>{{ papers|length }} results:</h2>
+{% for paper in papers %}
+{% include 'main/_paper.html' %}<br>
+{% endfor %}{% endif %}
 
 {% endblock %}

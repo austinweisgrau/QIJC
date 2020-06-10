@@ -5,7 +5,7 @@ from flask import (Flask, render_template, request,
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
 from app.main.forms import (PaperSubmissionForm, ManualSubmissionForm,
-                            FullVoteForm)
+                            FullVoteForm, SearchForm)
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
 from app.models import User, Paper
@@ -57,11 +57,6 @@ def user(username):
     return render_template('main/user.html', user=user,
                            subs=subs, showsub=False)
 
-@bp.route('/search', methods=['GET', 'POST'])
-@login_required
-def search():
-    return render_template('main/search.html')
-
 @bp.route('/history')
 @login_required
 def history():
@@ -74,7 +69,53 @@ def history():
                                showvote=True, showsub=True)
     weeks = [paper.voted for paper
              in Paper.query.group_by(Paper.voted).all()]
+    weeks.reverse()
+    weeks.pop(-1)
     return render_template('main/history.html', weeks=weeks)
+
+@bp.route('/search', methods=['GET', 'POST'])
+@login_required
+def search():
+    form = SearchForm()
+    form.subber.choices = form.presenter.choices = ([(None, 'None')]
+                                + [(u.id, u.firstname+' '+u.lastname[0])
+                            for u in User.query.order_by('firstname')])
+    if form.validate_on_submit():
+        query = Paper.query
+        needles = []
+        u_queries = []
+        d_queries = []
+        if form.title.data:
+            needles.append((Paper.title, form.title.data))
+        if form.authors.data:
+            needles.append((Paper.authors, form.authors.data))
+        if form.abstract.data:
+            needles.append((Paper.abstract, form.abstract.data))
+        if form.sub_date.data and (form.sub_date.data!=''):
+            dates = [datetime.strptime(i, '%d/%M/%Y') for i in
+                     form.sub_date.data.split('-')]
+            flash((dates[0], dates[1], Paper.query.get(1).timestamp))
+            d_queries.append((Paper.timestamp, dates[0], dates[1]))
+        if form.vote_date.data and (form.vote_date.data!=''):
+            dates = [datetime.strptime(i, '%d/%M/%Y') for i in
+                     form.vote_date.data.split('-')]
+            flash((dates[0], dates[1], Paper.query.get(1).voted))
+            d_queries.append(Paper.voted, dates[0], dates[1])
+        if form.subber.data and (form.subber.data!='None'):
+            u_queries.append((Paper.subber_id, form.subber.data))
+        if form.presenter.data and (form.presenter.data!='None'):
+            u_queries.append((Paper.volunteer_id, form.presenter.data))
+        for needle in needles:
+            query = query.filter(needle[0].ilike(f'%{needle[1]}%'))
+        for d_query in d_queries:
+            query = query.filter(d_query[0] >= d_query[1],
+                                 d_query[0] <= d_query[2])
+        for u_query in u_queries:
+            query = query.filter(u_query[0]==u_query[1])
+        papers = query.all()
+        return render_template('main/search.html', papers=papers,
+                               form=form, showsub=True)
+    return render_template('main/search.html', form=form)
 
 @bp.route('/submit_m', methods=['GET', 'POST'])
 @login_required

@@ -1,10 +1,42 @@
+from flask import flash
 from flask_wtf import FlaskForm
 from wtforms import (StringField, PasswordField, BooleanField,
-                     SubmitField, IntegerField, FieldList, FormField)
+                     SubmitField, IntegerField, FieldList, FormField,
+                     SelectField)
 from wtforms.validators import (DataRequired, ValidationError, Email,
                                 EqualTo, Regexp)
 from app.models import User, Paper
 
+class SearchForm(FlaskForm):
+    title = StringField('Title')
+    authors = StringField('Authors')
+    abstract = StringField('Abstract')
+    subber = SelectField('Submitter', validate_choice=False)
+    presenter = SelectField('Presenter', validate_choice=False)
+    sd_label = 'Submission date range (format MM/DD/YYYY-MM/DD/YYYY)'
+    sub_date = StringField(sd_label)
+    vd_label = 'Vote date range (format MM/DD/YYYY-MM/DD/YYYY)'
+    vote_date = StringField(vd_label)
+    submit = SubmitField('Search')
+
+    def validate_date(self, date):
+        if date.data == '':
+            return
+        try:
+            for i in date.data.split('-'):
+                date = [int(j) for j in i.split('/')]
+                if (1>date[0] or 12<date[0]
+                    or 1>date[1] or 31<date[1]
+                    or 1850>date[2] or 2100<date[2]):
+                    raise ValidationError('Date formatting error.')
+        except:
+            raise ValidationError('Date formatting error.')
+
+    def validate_sub_date(self, sub_date):
+        self.validate_date(sub_date)
+    def validate_vote_date(self, vote_date):
+        self.validate_date(vote_date)
+        
 class PaperSubmissionForm(FlaskForm):
     link = StringField('Link', validators=[DataRequired()])
     volunteering = BooleanField("I'm volunteering to discuss this paper.")
