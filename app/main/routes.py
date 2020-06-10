@@ -158,8 +158,11 @@ def submit():
         authors = ", ".join(scraper.authors)
         abstract = scraper.abstract
         title = scraper.title
-        comment_ = (str(current_user.firstname) + ': '
-                    + form.comments.data)
+        if form.comments.data:
+            comment_ = (str(current_user.firstname) + ': '
+                        + form.comments.data)
+        else:
+            comment_ = None
         p = Paper(link=link_str, subber=current_user,
                   authors=authors, abstract=scraper.abstract,
                   title=scraper.title, comment=comment_)

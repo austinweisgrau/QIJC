@@ -17,6 +17,9 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
+        if user.password_hash == 'waiting':
+            flash('Admin has not yet approved account.')
+            return redirect(url_for('auth.login'))
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             flash('Recover account? <Not yet functional>')

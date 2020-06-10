@@ -6,13 +6,11 @@
   {{ form.hidden_tag() }}
   
   {% macro field_(field) -%}
-  <p>
-  {{ field.label }}<br>
-  {{ field(size=64) }}<br>
+  {{ field.label }}&nbsp;&nbsp;&nbsp;&nbsp;
   {% for error in field.errors %}
   <span style='color:red;'>{{ error }}</span>
-  {% endfor %}
-  </p>
+  {% endfor %}<br>
+  {{ field(size=64) }}<br>
   {%- endmacro %}
 
   {% set formlist = [form.title, form.authors, form.sub_date, form.vote_date, form.abstract] %}

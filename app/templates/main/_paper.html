@@ -1,16 +1,19 @@
-{% if showsub %}
-{{ paper.subber.firstname }}
-{% if paper.volunteer.firstname is defined %}
-&#8594;&nbsp;{{ paper.volunteer.firstname }}
-{% endif %}<br>
-{% endif %}
-<div style='color: red;'>{{ paper.title }}</div>
-{{ paper.authors }}<br>
-<a href='{{ paper.link }}'>{{ paper.link }}</a><br>
-{{ paper.abstract }}<br>
-{% if showsub %}{% if paper.comment %}
-<div style='color: green;'>Comments:<br>{{ paper.comment }}</div>
-{% endif %}{% endif %}
-{% if showvote %}
-{{ paper.score_n }}/{{ paper.score_d }} votes.<br><br>
-{% endif %}
+<div class='paper'>
+  {% if showsub %}
+  {{ paper.subber.firstname }}
+  {% if paper.volunteer.firstname is defined %}
+  &#8594;&nbsp;{{ paper.volunteer.firstname }}
+  {% endif %}<br>
+  {% endif %}
+  <span class='title'>{{ paper.title }}</span><br>
+  {{ paper.authors }}<br>
+  <a href='{{ paper.link }}'>{{ paper.link }}</a><br>
+  {{ paper.abstract }}<br>
+  {% if showsub %}{% if paper.comment %}
+  <span class='comment'>Comments:<br>{{ paper.comment }}</span>
+  {% endif %}{% endif %}
+  {% if showvote %}
+  <span class='votes'>{{ paper.score_n }}/{{ paper.score_d }} votes.
+  </span>
+  {% endif %}
+</div>

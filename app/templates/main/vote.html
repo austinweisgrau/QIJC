@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<br>
+<h1>Vote</h1>
 <form action='' method='post'>
 {% for i in voteforms %}
 {% set paper = i[0] %}
 {% include 'main/_paper.html' %}
 {{ i[1].hidden_tag() }}
-Vote: {{ i[1].vote_num(size=1) }} / {{ i[1].vote_den(size=1) }}
-<hr>
+<div class='vote'>
+  Vote: {{ i[1].vote_num(size=1) }} / {{ i[1].vote_den(size=1) }}
+</div><br>
 {% endfor %}
 <br>
 {{ voteform.submit() }}
