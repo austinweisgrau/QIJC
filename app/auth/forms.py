@@ -51,5 +51,6 @@ class ManageUserForm(FlaskForm):
                            choices=[('del', 'Delete'),
                                     ('rma', 'Remove admin')],
                            validate_choice=False)
+    approve = BooleanField('Approve')
     user_ = HiddenField('user_')
     submit_ = SubmitField('>')

@@ -43,10 +43,10 @@ def register():
         user = User(username=form.username.data, email=form.email.data,
                     firstname=form.firstname.data,
                     lastname=form.lastname.data)
-        user.set_password(form.password.data)
+        user.set_password(form.password.data, 1)
         db.session.add(user)
         db.session.commit()
-        flash('Successfully registered.')
+        flash('Successfully registered. Sent to admins for approval.')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register',
                            form=form)
@@ -65,7 +65,8 @@ def manage():
         db.session.commit()
         flash('Invitation sent.')
         return redirect(url_for('auth.manage'))
-    users = User.query.all()
+    users = (User.query.order_by(User.password_hold.desc())
+             .order_by(User.admin.desc()).order_by('firstname').all())
     for user in users:
         user.manage_form = ManageUserForm(user_=user.id)
         manageforms.append(user.manage_form)
@@ -85,6 +86,12 @@ def manage():
             elif form.action2_.data == 'rma':
                 User.query.get(form.user_.data).admin = False
                 db.session.commit()
+            elif form.approve.data:
+                u = User.query.get(form.user_.data)
+                u.password_hash = u.password_hold
+                u.password_hold = None
+                db.session.commit()
+                 
             return redirect(url_for('auth.manage'))
     return render_template('auth/manage.html', title='Manage',
                            inviteform=inviteform,
