@@ -6,12 +6,29 @@ Hot points: {{ user.hotpoints() }}<br>
 Sum points: {{ user.sumpoints() }}<br>
 {% if user.username == current_user.username %}
 <hr>
-This is your own user page.<br>
+<h4>Change Password</h4>
+<form action='' method='post'>
+  {{ form.hidden_tag() }}
+
+  {% macro field_(field) -%}
+  {{ field.label }}&nbsp;&nbsp;&nbsp;&nbsp;
+  {% for error in field.errors %}
+  <span style='color:red;'>{{ error }}</span>
+  {% endfor %}<br>
+  {{ field(size=32) }}<br>
+  {%- endmacro %}
+
+  {{ field_(form.current_pass) }}
+  {{ field_(form.new_pass) }}
+  {{ field_(form.new_pass2) }}
+
+  {{ form.submit() }}
+</form>
 {% endif %}
 <hr>
 <h3>My recent submissions:</h3>
 {% for paper in subs %}
-{% include '/main/_paper.html' %}
+{% include '/main/_paper.html' %}<br>
 {% endfor %}
 
 {% endblock %}

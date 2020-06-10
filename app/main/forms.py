@@ -1,5 +1,6 @@
 from flask import flash
 from flask_wtf import FlaskForm
+from flask_login import current_user
 from wtforms import (StringField, PasswordField, BooleanField,
                      SubmitField, IntegerField, FieldList, FormField,
                      SelectField)
@@ -44,11 +45,15 @@ class PaperSubmissionForm(FlaskForm):
     submit = SubmitField('Submit URL')
 
     def validate_link(self, link):
+        # Validate arxiv.org
         if not 'arxiv' in link.data.lower():
             raise ValidationError('Only arxiv.org links are accepted.'
                                   + 'Consider submitting manually.')
+
+        # Validate uniqueness among non-voted papers
         link_str = link.data.split('?')[0]
-        paper = Paper.query.filter_by(link=link_str).first()
+        paper = (Paper.query.filter(Paper.voted==None)
+                 .filter_by(link=link_str).first())
         if paper is not None:
             print('Validation error raised.')
             raise ValidationError('Link already submitted.')
@@ -71,7 +76,6 @@ class ManualSubmissionForm(FlaskForm):
         paper = Paper.query.filter_by(title=title.data).first()
         if paper is not None:
             raise ValidationError('Paper with this title already submitted.')
-        
 
 class VoteForm(FlaskForm):
     vote_num = IntegerField()
@@ -80,3 +84,18 @@ class VoteForm(FlaskForm):
 class FullVoteForm(FlaskForm):
     votes = FieldList(FormField(VoteForm))
     submit = SubmitField('Submit votes.')
+
+class ChangePasswordForm(FlaskForm):
+    current_pass = PasswordField('Current Password',
+                               validators=[DataRequired()])
+    new_pass = PasswordField('New password',
+                           validators=[DataRequired()])
+    new_pass2 = PasswordField('Confirm new password',
+                              validators=[DataRequired(),
+                              EqualTo('new_pass',
+                                      message='Entries do not match.')])
+    submit = SubmitField('Submit.')
+
+    def validate_current_pass(self, current_pass):
+        if not current_user.check_password(current_pass.data):
+            raise ValidationError('Password incorrect.')

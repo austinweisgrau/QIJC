@@ -1,11 +1,13 @@
 from app import db #, app
 from app.auth import bp
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import (Flask, render_template, request, flash,
+                   redirect, url_for)
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
-from app.auth.forms import LoginForm, RegistrationForm
-from app.auth.forms import InviteUserForm, ManageUserForm
-from flask_login import current_user, login_user, logout_user, login_required
+from app.auth.forms import (LoginForm, RegistrationForm, InviteUserForm,
+                            ManageUserForm)
+from flask_login import (current_user, login_user, logout_user,
+                         login_required)
 from app.models import User, Paper
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -17,6 +19,7 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
+            flash('Recover account? <Not yet functional>')
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')

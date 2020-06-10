@@ -5,7 +5,7 @@ from flask import (Flask, render_template, request,
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
 from app.main.forms import (PaperSubmissionForm, ManualSubmissionForm,
-                            FullVoteForm, SearchForm)
+                            FullVoteForm, SearchForm, ChangePasswordForm)
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
 from app.models import User, Paper
@@ -23,10 +23,10 @@ def index():
 @bp.route('/vote', methods=['GET', 'POST'])
 @login_required
 def vote():
-    papers_v = (Paper.query.filter(Paper.voted == False)
+    papers_v = (Paper.query.filter(Paper.voted==None)
               .filter(Paper.volunteer_id != None)
               .order_by(Paper.timestamp.desc()).all())
-    papers_ = (Paper.query.filter(Paper.voted == False)
+    papers_ = (Paper.query.filter(Paper.voted==None)
                .order_by(Paper.timestamp.desc()).all())
     papers = papers_v + papers_
     list_p = []
@@ -48,14 +48,20 @@ def vote():
     return render_template('main/vote.html', title='Vote', showsub=True,
                            voteform=voteform, voteforms=voteforms)
 
-@bp.route('/user/<username>')
+@bp.route('/user/<username>', methods=['GET', 'POST'])
 @login_required
 def user(username):
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        current_user.set_password(form.new_pass.data)
+        db.session.commit()
+        flash('Password changed.')
     user = User.query.filter_by(username=username).first_or_404()
     subs = (Paper.query.filter_by(subber=user)
             .order_by(Paper.timestamp.desc()))[:10]
-    return render_template('main/user.html', user=user,
-                           subs=subs, showsub=False)
+    return render_template('main/user.html', user=user, form=form,
+                           subs=subs, showsub=False,
+                           current_user=current_user)
 
 @bp.route('/history')
 @login_required

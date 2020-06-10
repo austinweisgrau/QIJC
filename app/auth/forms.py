@@ -31,7 +31,6 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
-
 class InviteUserForm(FlaskForm):
     email = StringField('New user email', validators=[DataRequired(), Email()])
     submit = SubmitField('Invite')
