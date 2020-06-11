@@ -176,6 +176,5 @@ def submit():
         return redirect(url_for('main.submit'))
     papers = (Paper.query.filter(Paper.timestamp >= last_month)
               .order_by(Paper.timestamp.desc()).all())[:10]
-    return render_template('main/submit.html', papers=papers,
-                           title='Submit Paper', form=form, showsub=True)
-
+    return render_template('main/submit.html', papers=papers, form=form,
+                           title='Submit Paper', showsub=True)
