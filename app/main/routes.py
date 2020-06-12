@@ -21,9 +21,11 @@ def index():
     users = User.query.all()
     return render_template('main/index.html', users=users)
 
+locked = {'latest': None}
 @bp.route('/vote', methods=['GET', 'POST'])
 @login_required
 def vote():
+    global locked
     papers_v = (Paper.query.filter(Paper.voted==None)
               .filter(Paper.volunteer_id != None)
               .order_by(Paper.timestamp.desc()).all())
@@ -35,18 +37,22 @@ def vote():
     votes = 0
     for i in range(len(voteform.data['votes'])):
         paper = voteforms[i][0]
-        # voteform.data['votes'] is a list of form returns
         data = voteform.data['votes'][i]
-        if data['vote_num']: #Validates on numerator
+        if data['lock']:
+            locked[i] = data['vote_den']
+            locked['latest'] = data['vote_den']
+        if data['vote_num'] and voteform.submit.data: #val on num
             paper.score_n = data['vote_num']
-            paper.score_d = data['vote_den']
+            paper.score_d = locked[i]
             paper.voted = datetime.now().date()
             db.session.commit()
             votes += 1
-    if votes:
+    if votes and voteform.submit.data:
+        locked = {'latest': None}
         flash('{} votes counted.'.format(votes))
         return redirect(url_for('main.vote'))
-    return render_template('main/vote.html', title='Vote', showsub=True,
+    return render_template('main/vote.html', title='Vote',
+                           showsub=True, locked=locked,
                            voteform=voteform, voteforms=voteforms)
 
 @bp.route('/user/<username>', methods=['GET', 'POST'])
