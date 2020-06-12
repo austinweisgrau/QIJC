@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import (StringField, PasswordField, BooleanField,
                      SubmitField, IntegerField, FieldList, FormField,
-                     SelectField)
+                     SelectField, TextAreaField)
 from wtforms.validators import (DataRequired, ValidationError, Email,
                                 EqualTo, Regexp)
 from app.models import User, Paper
@@ -85,6 +85,15 @@ class FullVoteForm(FlaskForm):
     votes = FieldList(FormField(VoteForm))
     submit = SubmitField('Submit votes.')
 
+class EditForm(FlaskForm):
+    comment = SubmitField('Comment')
+    volunteer = SubmitField('Volunteer')
+    unvolunteer = SubmitField('unVolunteer')
+    unsubmit = SubmitField('unSubmit')
+
+class FullEditForm(FlaskForm):
+    edits = FieldList(FormField(EditForm))
+
 class ChangePasswordForm(FlaskForm):
     current_pass = PasswordField('Current Password',
                                validators=[DataRequired()])
@@ -99,3 +108,7 @@ class ChangePasswordForm(FlaskForm):
     def validate_current_pass(self, current_pass):
         if not current_user.check_password(current_pass.data):
             raise ValidationError('Password incorrect.')
+
+class CommentForm(FlaskForm):
+    comment = StringField('Comment', validators=[DataRequired()])
+    submit = SubmitField('Submit.')

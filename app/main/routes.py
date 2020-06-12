@@ -5,7 +5,8 @@ from flask import (Flask, render_template, request,
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
 from app.main.forms import (PaperSubmissionForm, ManualSubmissionForm,
-                            FullVoteForm, SearchForm, ChangePasswordForm)
+                            FullVoteForm, SearchForm, ChangePasswordForm,
+                            FullEditForm, CommentForm)
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
 from app.models import User, Paper
@@ -29,22 +30,22 @@ def vote():
     papers_ = (Paper.query.filter(Paper.voted==None)
                .order_by(Paper.timestamp.desc()).all())
     papers = papers_v + papers_
-    list_p = []
-    for paper in papers:
-        d = {str(paper.id): paper}
-        list_p.append(d)
-    voteform = FullVoteForm(votes=list_p)
+    voteform = FullVoteForm(votes=range(len(papers)))
     voteforms = list(zip(papers, voteform.votes))
-    print(voteform.votes)
+    votes = 0
     for i in range(len(voteform.data['votes'])):
         paper = voteforms[i][0]
+        # voteform.data['votes'] is a list of form returns
         data = voteform.data['votes'][i]
-        if voteform.data['votes'][i]['vote_num']:
+        if data['vote_num']: #Validates on numerator
             paper.score_n = data['vote_num']
             paper.score_d = data['vote_den']
-            paper.voted = True
+            paper.voted = datetime.now().date()
             db.session.commit()
-            flash('Votes counted.')
+            votes += 1
+    if votes:
+        flash('{} votes counted.'.format(votes))
+        return redirect(url_for('main.vote'))
     return render_template('main/vote.html', title='Vote', showsub=True,
                            voteform=voteform, voteforms=voteforms)
 
@@ -116,7 +117,7 @@ def search():
                                  d_query[0] <= d_query[2])
         for u_query in u_queries:
             query = query.filter(u_query[0]==u_query[1])
-        papers = query.all()
+        papers = query.order_by(Paper.timestamp.desc()).all()
         return render_template('main/search.html', papers=papers,
                                form=form, showsub=True)
     return render_template('main/search.html', form=form)
@@ -145,7 +146,7 @@ def submit_m():
 @login_required
 def submit():
     form = PaperSubmissionForm()
-    if form.validate_on_submit():
+    if form.submit.data and form.validate_on_submit():
         link_str = form.link.data.split('?')[0].split('.pdf')[0]
         scraper = Scraper()
         scraper.get(link_str)
@@ -174,7 +175,42 @@ def submit():
             db.session.commit()
         flash('Paper submitted.')
         return redirect(url_for('main.submit'))
-    papers = (Paper.query.filter(Paper.timestamp >= last_month)
-              .order_by(Paper.timestamp.desc()).all())[:10]
-    return render_template('main/submit.html', papers=papers, form=form,
-                           title='Submit Paper', showsub=True)
+    papers = (Paper.query.filter(Paper.voted==None)
+              .order_by(Paper.timestamp.desc()).all())
+    editform = FullEditForm(edits=range(len(papers)))
+    editforms = list(zip(papers, editform.edits))
+    for i in range(len(editform.data['edits'])):
+        paper = editforms[i][0]
+        button = editform.data['edits'][i]
+        if button['volunteer']:
+            paper.volunteer = current_user
+        elif button['unvolunteer']:
+            paper.volunteer = None
+        elif button['unsubmit']:
+            db.session.delete(paper)
+        elif button['comment']:
+            return redirect(url_for('main.comment', id=paper.id))
+        else:
+            continue
+        db.session.commit()
+        return redirect(url_for('main.submit'))
+    return render_template('main/submit.html', form=form,
+                            title='Submit Paper', showsub=True,
+                            editform=editform,
+                            editforms=editforms, extras=True)
+
+@bp.route('/comment', methods=['GET', 'POST'])
+@login_required
+def comment():
+    paper = Paper.query.get(request.args.get('id'))
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = "\n" + current_user.firstname + ": " + form.comment.data
+        if paper.comment:
+            paper.comment = paper.comment + comment
+        else:
+            paper.comment = comment
+        db.session.commit()
+        return redirect(url_for('main.submit'))
+    return render_template('main/comment.html', form=form, paper=paper,
+                               title='Comment')

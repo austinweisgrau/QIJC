@@ -1,43 +1,58 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Submit Paper</h1>
-<form action='' method='post'>
-  {{ form.hidden_tag() }}
+  <h1>Submit Paper</h1>
+  <form action='' method='post'>
+    {{ form.hidden_tag() }}
 
-  {% macro errors(source) -%}
-  {% for error in source %}
-  <span style='color: red;'>[{{ error }}]</span>
-  {% endfor %}
-  {%- endmacro %}
+    {% macro errors(source) -%}
+      {% for error in source %}
+	<span style='color: red;'>[{{ error }}]</span>
+      {% endfor %}
+    {%- endmacro %}
 
-  <p>
-    Automatically handles arXiv links.
-    Otherwise, <a href='{{ url_for('main.submit_m') }}'>submit manually.</a>
-  </p>
-  <p>
-    {{ form.link.label }}<br>
-    {{ form.link(size=64) }}<br>
-    {{ errors(form.link.errors) }}
-  </p>
-  <p>
-    {{ form.volunteering.label }}
-    {{ form.volunteering(size=64) }}<br>
-  </p>
-  <p>
-    {{ form.comments.label }}<br>
-    {{ form.comments(size=64) }}<br>
-    {% for error in form.comments.errors %}
-    <span style='color: red;'>[{{ error }}]</span>
+    <p>
+      Automatically handles arXiv links.
+      Otherwise, <a href='{{ url_for('main.submit_m') }}'>submit manually.</a>
+    </p>
+    <p>
+      {{ form.link.label }}<br>
+      {{ form.link(size=64) }}<br>
+      {{ errors(form.link.errors) }}
+    </p>
+    <p>
+      {{ form.volunteering.label }}
+      {{ form.volunteering(size=64) }}<br>
+    </p>
+    <p>
+      {{ form.comments.label }}<br>
+      {{ form.comments(size=64) }}<br>
+      {% for error in form.comments.errors %}
+	<span style='color: red;'>[{{ error }}]</span>
+      {% endfor %}
+    </p>
+    <p>
+      {{ form.submit() }}
+    </p>
+  </form>
+  <hr><br>
+  <form action='' method='post'>
+    {% for i in editforms %}
+      {% set paper = i[0] %}
+      {% include 'main/_paper.html' %}
+      {{ i[1].hidden_tag() }}
+      {% if i[0].subber==current_user %}
+	{{ i[1].unsubmit() }}
+      {% endif %}
+      {% if i[0].volunteer==current_user %}
+	{{ i[1].unvolunteer() }}
+      {% endif %}
+      {% if not i[0].volunteer %}
+	{{ i[1].volunteer() }}
+      {% endif %}
+      {{ i[1].comment }}
+      {##}</div>
     {% endfor %}
-  </p>
-  <p>
-    {{ form.submit() }}
-  </p>
 </form>
-<hr><br>
-{% for paper in papers %}
-{% include 'main/_paper.html' %}
-{% endfor %}
 
 {% endblock %}

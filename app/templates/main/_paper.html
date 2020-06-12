@@ -9,11 +9,11 @@
   {{ paper.authors }}<br>
   <a href='{{ paper.link }}'>{{ paper.link }}</a><br>
   {{ paper.abstract }}<br>
-  {% if showsub %}{% if paper.comment %}
-  <span class='comment'>Comments:<br>{{ paper.comment }}</span>
+  {% if showsub %}{% if paper.comment %}{% set comment = paper.comment.split('\n') %}
+  <span class='comment'><span style='font-weight: bold;'>Comments:</span>{% for i in comment  %}{{ i }}<br>{% endfor %}</span>
   {% endif %}{% endif %}
   {% if showvote %}
   <span class='votes'>{{ paper.score_n }}/{{ paper.score_d }} votes.
   </span>
   {% endif %}
-</div>
+{% if not extras %}</div>{% endif %}
