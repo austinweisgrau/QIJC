@@ -99,3 +99,10 @@ class FullEditForm(FlaskForm):
 class CommentForm(FlaskForm):
     comment = StringField('Comment', validators=[DataRequired()])
     submit = SubmitField('Submit.')
+
+class MessageForm(FlaskForm):
+    e_from = StringField('From', validators=[DataRequired(), Email()])
+    subject = StringField('Subject', validators=[DataRequired()])
+    body = TextAreaField('Body', validators=[DataRequired()])
+    abstracts = BooleanField('Attach abstracts:', default=True)
+    submit = SubmitField('Send.')

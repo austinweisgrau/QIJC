@@ -27,7 +27,7 @@
       {% if current_user.admin %}
       <a href="{{ url_for('auth.manage') }}">Manage</a>
       {% endif %}
-      <a href="">Messaging</a>
+      <a href="{{ url_for('main.message') }}">Messaging</a>
       <a href="{{ url_for('auth.logout') }}">Log out</a>
       {% endif %}
     </div>

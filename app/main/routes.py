@@ -6,12 +6,13 @@ from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
 from app.main.forms import (PaperSubmissionForm, ManualSubmissionForm,
                             FullVoteForm, SearchForm,
-                            FullEditForm, CommentForm)
+                            FullEditForm, CommentForm, MessageForm)
 from app.auth.forms import ChangePasswordForm
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
 from app.models import User, Paper
 from app.main.scraper import Scraper
+from textwrap import dedent
 
 last_month = datetime.today() - timedelta(days = 30)
 
@@ -221,3 +222,19 @@ def comment():
         return redirect(url_for('main.submit'))
     return render_template('main/comment.html', form=form, paper=paper,
                                title='Comment')
+
+@bp.route('/message', methods=['GET', 'POST'])
+@login_required
+def message():
+    form = MessageForm()
+    if form.validate_on_submit():
+        
+    bodydefault = dedent('''    The abstracts for this week are attached.
+    
+    Please log in if you want to claim a paper to discuss.
+    
+    Best, {}.
+    '''.format(current_user.firstname))
+    form.body.data = bodydefault
+    return render_template('main/message.html', form=form,
+                               bodydefault=bodydefault)

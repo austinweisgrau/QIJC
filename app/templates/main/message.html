@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+table, th, td {
+    text-align: left;
+    border: none;
+    border-collapse: none;
+    border-spacing: none;
+    padding: none;
+}
+
+tr:hover{
+    background-color: lightblue;
+    color: black;
+}
+
+</style>
+<br>
+<form action='' method='post'>
+  {{ form.hidden_tag() }}
+  <table class='messaging'>
+    <tr>
+      <td>{{ form.e_from.label }}:</td>
+      <td>{{ form.e_from(size=64, value=current_user.email) }}</td>
+    </tr>
+    <tr>
+      <td>{{ form.subject.label }}:</td>
+      <td>{{ form.subject(size=64, value='Quantum Information Journal Club') }}</td>
+    </tr>
+    <tr>
+      <td>{{ form.body.label }}:</td>
+      <td>{{ form.body(cols=64, style='height: 200px') }}</td>
+    </tr>
+    <tr>
+      <td>{{ form.abstracts.label }}</td>
+      <td>{{ form.abstracts() }}</td>
+    </tr>
+  </table>
+  {{ form.submit(style='margin: 5px; padding: 5px') }}
+</form>
+{% endblock %}
