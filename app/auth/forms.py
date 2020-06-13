@@ -31,6 +31,34 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Reset password.')
+
+class ResetPasswordForm(FlaskForm):
+    new_pass = PasswordField('New password',
+                           validators=[DataRequired()])
+    new_pass2 = PasswordField('Confirm new password',
+                              validators=[DataRequired(),
+                              EqualTo('new_pass',
+                                      message='Entries do not match.')])
+    submit = SubmitField('Submit.')
+
+class ChangePasswordForm(FlaskForm):
+    current_pass = PasswordField('Current Password',
+                               validators=[DataRequired()])
+    new_pass = PasswordField('New password',
+                           validators=[DataRequired()])
+    new_pass2 = PasswordField('Confirm new password',
+                              validators=[DataRequired(),
+                              EqualTo('new_pass',
+                                      message='Entries do not match.')])
+    submit = SubmitField('Submit.')
+
+    def validate_current_pass(self, current_pass):
+        if not current_user.check_password(current_pass.data):
+            raise ValidationError('Password incorrect.')
+
 class InviteUserForm(FlaskForm):
     email = StringField('New user email', validators=[DataRequired(), Email()])
     submit = SubmitField('Invite')

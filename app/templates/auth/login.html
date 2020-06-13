@@ -21,5 +21,8 @@
       <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
       <p>{{ form.submit() }}</p>
     </form><br>
-    <p>New User? <a href='{{ url_for('auth.register') }}'>Request account.</a></p>
+<p>New User? <a href="{{ url_for('auth.register') }}">Request account.</a></p>
+<p>Forgot password?
+  <a href="{{ url_for('auth.reset_password_req') }}">Reset.</a>
+</p>
 {% endblock %}

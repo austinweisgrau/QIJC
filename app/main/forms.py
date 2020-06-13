@@ -80,7 +80,7 @@ class ManualSubmissionForm(FlaskForm):
 class VoteForm(FlaskForm):
     vote_num = IntegerField()
     vote_den = IntegerField()
-    lock = SubmitField('Lock votes.')
+    lock = SubmitField('Read vote.')
 
 class FullVoteForm(FlaskForm):
     master_den = IntegerField()
@@ -95,21 +95,6 @@ class EditForm(FlaskForm):
 
 class FullEditForm(FlaskForm):
     edits = FieldList(FormField(EditForm))
-
-class ChangePasswordForm(FlaskForm):
-    current_pass = PasswordField('Current Password',
-                               validators=[DataRequired()])
-    new_pass = PasswordField('New password',
-                           validators=[DataRequired()])
-    new_pass2 = PasswordField('Confirm new password',
-                              validators=[DataRequired(),
-                              EqualTo('new_pass',
-                                      message='Entries do not match.')])
-    submit = SubmitField('Submit.')
-
-    def validate_current_pass(self, current_pass):
-        if not current_user.check_password(current_pass.data):
-            raise ValidationError('Password incorrect.')
 
 class CommentForm(FlaskForm):
     comment = StringField('Comment', validators=[DataRequired()])

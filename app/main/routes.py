@@ -5,8 +5,9 @@ from flask import (Flask, render_template, request,
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
 from app.main.forms import (PaperSubmissionForm, ManualSubmissionForm,
-                            FullVoteForm, SearchForm, ChangePasswordForm,
+                            FullVoteForm, SearchForm,
                             FullEditForm, CommentForm)
+from app.auth.forms import ChangePasswordForm
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
 from app.models import User, Paper

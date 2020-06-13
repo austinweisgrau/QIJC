@@ -1,14 +1,16 @@
-from app import db #, app
+from app import db
 from app.auth import bp
 from flask import (Flask, render_template, request, flash,
                    redirect, url_for)
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
 from app.auth.forms import (LoginForm, RegistrationForm, InviteUserForm,
-                            ManageUserForm)
+                            ManageUserForm, ResetPasswordRequestForm,
+                            ResetPasswordForm)
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
 from app.models import User, Paper
+from app.email import send_password_reset_email
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -53,6 +55,38 @@ def register():
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register',
                            form=form)
+
+@bp.route('/reset_password_req', methods=['GET', 'POST'])
+def reset_password_req():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+            flash('Password reset email sent.')
+            return redirect(url_for('auth.login'))
+        else:
+            flash('No user registered with that email address.')
+            return redirect(url_for('auth.reset_password_req'))
+    return render_template('auth/reset_password_req.html',
+                           title='Reset Password', form=form)
+
+@bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('main.index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.new_pass.data)
+        db.session.commit()
+        flash('Password updated.')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/reset_password.html', form=form)
 
 @bp.route('/manage', methods=['GET', 'POST'])
 @login_required
