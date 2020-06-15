@@ -1,4 +1,4 @@
-from app import db #, app
+from app import db
 from app.main import bp
 from flask import (Flask, render_template, request,
                    flash, redirect, url_for)
@@ -12,6 +12,7 @@ from flask_login import (current_user, login_user, logout_user,
                          login_required)
 from app.models import User, Paper
 from app.main.scraper import Scraper
+from app.email import send_abstracts
 from textwrap import dedent
 
 last_month = datetime.today() - timedelta(days = 30)
@@ -228,7 +229,17 @@ def comment():
 def message():
     form = MessageForm()
     if form.validate_on_submit():
-        
+        subject = form.subject.data
+        e_from = '[' + form.e_from.data + ']'
+        body = form.body.data
+        attach = form.abstracts.data
+        papers_v = (Paper.query.filter(Paper.voted==None)
+                .filter(Paper.volunteer_id != None)
+                .order_by(Paper.timestamp.desc()).all())
+        papers_ = (Paper.query.filter(Paper.voted==None)
+                .order_by(Paper.timestamp.desc()).all())
+        papers = papers_v + papers_
+        send_abstracts(e_from, subject, body, papers)
     bodydefault = dedent('''    The abstracts for this week are attached.
     
     Please log in if you want to claim a paper to discuss.
@@ -237,4 +248,4 @@ def message():
     '''.format(current_user.firstname))
     form.body.data = bodydefault
     return render_template('main/message.html', form=form,
-                               bodydefault=bodydefault)
+                            bodydefault=bodydefault)

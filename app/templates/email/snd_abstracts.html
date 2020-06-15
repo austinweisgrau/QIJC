@@ -1,0 +1,22 @@
+{% set bodylist = body.split('\n') %}
+{% for line in bodylist %}
+{{ line }}<br>
+{% endfor %}
+
+{% for paper in papers %}
+Submitter: {{ paper.subber.firstname }}<br>
+{% if paper.volunteer is not none %}
+Volunteer: {{ paper.volunteer }}<br>
+{% endif %}
+<span style='font-weight: bold;'>{{ paper.title }}</span><br>
+{{ paper.authors }}<br>
+<a href="{{ paper.link }}">
+  {% if 'arxiv' in paper.link %}
+  arXiv:{{ paper.link.split('/')[-1] }}
+  {% else %}
+  {{ paper.link }}
+  {% endif %}
+</a><br>
+{{ paper.abstract }}<br>
+<br>
+{% endfor %}

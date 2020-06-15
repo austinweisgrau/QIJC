@@ -1,5 +1,6 @@
-from flask import render_template, current_app
+from flask import render_template, current_app, flash
 from app import mail, db
+from app.models import User
 from flask_mail import Message
 from threading import Thread
 
@@ -26,10 +27,13 @@ def send_password_reset_email(user):
 
 def send_abstracts(e_from, subject, body, papers):
 #    recipients = db.session.query(User.email).all()
-    recipients = (db.session.query(User.email)
+    recipients = list(db.session.query(User.email)
                       .filter(User.username=='austin').first())
     send_email(subject, e_from, recipients,
                    text_body=render_template('email/snd_abstracts.txt',
-                                                 papers=papers),
+                                                papers=papers,
+                                                 body=body),
                    html_body=render_template('email/snd_abstracts.html',
-                                                 papers=papers))
+                                                 papers=papers,
+                                                 body=body))
+    flash('Message sent.')

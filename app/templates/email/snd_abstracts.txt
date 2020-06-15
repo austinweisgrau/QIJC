@@ -1,0 +1,11 @@
+{{ body }}
+
+{% for paper in papers %}
+Submitter: {{ paper.subber.firstname }}
+{% if paper.volunteer is defined %}Volunteer: {{ paper.volunteer }}{% endif %}
+{{ paper.title }}
+{{ paper.authors }}
+{{ paper.link }}
+{{ paper.abstract }}
+
+{% endfor %}

@@ -1,11 +1,6 @@
-import os
-from dotenv import load_dotenv
 import requests
 from xml.etree import ElementTree as et
 from flask import flash
-
-load_dotenv()
-SN_KEY = os.getenv('SN_API')
 
 class Scraper(object):
     failed = 0
