@@ -59,25 +59,27 @@ class ChangePasswordForm(FlaskForm):
         if not current_user.check_password(current_pass.data):
             raise ValidationError('Password incorrect.')
 
-class InviteUserForm(FlaskForm):
-    email = StringField('New user email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Invite')
-
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if (user is not None) and (user.username):
-            raise ValidationError('Email already registered.')
-        elif (user is not None):
-            raise ValidationError('User already invited. Resending invite email.')
+class ChangeEmailForm(FlaskForm):
+    new_email = StringField('New Email',
+                            validators=[DataRequired(), Email()])
+    new_email2 = StringField('Confirm Email',
+                             validators=[EqualTo(
+                                 'new_email',
+                                 message='Entries do not match.')])
+    submit = SubmitField('Submit.')
 
 class ManageUserForm(FlaskForm):
     action_ = SelectField('Action', 
-                          choices=[('del', 'Delete'),
+                          choices=[('ret', 'Retire'),
                                    ('adm', 'Make admin')],
                           validate_choice=False)
     action2_ = SelectField('Action',
-                           choices=[('del', 'Delete'),
+                           choices=[('ret', 'Retire'),
                                     ('rma', 'Remove admin')],
+                           validate_choice=False)
+    action3_ = SelectField('Action',
+                           choices=[('unr', 'unRetire'),
+                                     ('del', 'Delete user')],
                            validate_choice=False)
     approve = BooleanField('Approve')
     user_ = HiddenField('user_')

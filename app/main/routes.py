@@ -7,7 +7,7 @@ from werkzeug.urls import url_parse
 from app.main.forms import (PaperSubmissionForm, ManualSubmissionForm,
                             FullVoteForm, SearchForm,
                             FullEditForm, CommentForm, MessageForm)
-from app.auth.forms import ChangePasswordForm
+from app.auth.forms import ChangePasswordForm, ChangeEmailForm
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
 from app.models import User, Paper
@@ -21,7 +21,11 @@ last_month = datetime.today() - timedelta(days = 30)
 @bp.route('/index')
 @login_required
 def index():
-    users = User.query.all()
+    for user in User.query.all():
+        if user.hp != user.hotpoints():
+            user.hp = user.hotpoints()
+            db.session.commit()
+    users = User.query.order_by(User.hp.desc()).all()
     return render_template('main/index.html', users=users)
 
 locked = {'latest': None}
@@ -66,11 +70,16 @@ def user(username):
         current_user.set_password(form.new_pass.data)
         db.session.commit()
         flash('Password changed.')
+    form2 = ChangeEmailForm()
+    if form2.validate_on_submit():
+        current_user.email = form2.new_email.data
+        db.session.commit()
+        flash('Email updated.')
     user = User.query.filter_by(username=username).first_or_404()
     subs = (Paper.query.filter_by(subber=user)
             .order_by(Paper.timestamp.desc()))[:10]
     return render_template('main/user.html', user=user, form=form,
-                           subs=subs, showsub=False,
+                           subs=subs, showsub=False, form2=form2,
                            current_user=current_user)
 
 @bp.route('/history')

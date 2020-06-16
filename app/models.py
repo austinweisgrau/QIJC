@@ -19,6 +19,8 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     admin = db.Column(db.Boolean, default=False)
     password_hold = db.Column(db.String(128))
+    retired = db.Column(db.Boolean, default=False)
+    hp = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -57,6 +59,18 @@ class User(UserMixin, db.Model):
 
     def hotpoints(self):
         hp = 0
+        def calc(which):
+            nonlocal hp
+            for p in list(Paper.query.filter(which[0] == self).all()):
+                if getattr(p, which[1]):
+                    lag = datetime.now().date() - getattr(p, which[1])
+                    lag = lag.days/7
+                    print(f'lag is {lag}')
+                    hp += 5 * ((3/4)**(lag))
+                    print(f'hp is {hp}')
+        calc([Paper.subber, 'timestamp'])
+        calc([Paper.volunteer, 'voted'])
+        hp = int(hp)
         return hp
 
 class Paper(db.Model):

@@ -2,7 +2,8 @@
 
 {% block content %}
 <h1>{{ user.firstname }} {{ user.lastname }}</h1>
-Hot points: {{ user.hotpoints() }}<br>
+{{ user.email }}<br><br>
+Hot points: {{ user.hp }}<br>
 Sum points: {{ user.sumpoints() }}<br>
 {% if user.username == current_user.username %}
 <hr>
@@ -23,6 +24,15 @@ Sum points: {{ user.sumpoints() }}<br>
   {{ field_(form.new_pass2) }}
 
   {{ form.submit() }}
+</form>
+<h4>Change Email</h4>
+<form action='' method='post'>
+  {{ form2.hidden_tag() }}
+
+  {{ field_(form2.new_email) }}
+  {{ field_(form2.new_email2) }}
+
+  {{ form2.submit() }}
 </form>
 {% endif %}
 <hr>

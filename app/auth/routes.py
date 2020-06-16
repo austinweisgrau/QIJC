@@ -2,9 +2,10 @@ from app import db
 from app.auth import bp
 from flask import (Flask, render_template, request, flash,
                    redirect, url_for)
+from sqlalchemy import func
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
-from app.auth.forms import (LoginForm, RegistrationForm, InviteUserForm,
+from app.auth.forms import (LoginForm, RegistrationForm,
                             ManageUserForm, ResetPasswordRequestForm,
                             ResetPasswordForm)
 from flask_login import (current_user, login_user, logout_user,
@@ -95,33 +96,34 @@ def manage():
     if not current_user.admin:
         flash('Admin privilege required to manage.')
         return redirect(url_for('main.index'))
-    inviteform = InviteUserForm()
-    if inviteform.submit.data and inviteform.validate_on_submit():
-        user = User(email=inviteform.email.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Invitation sent.')
-        return redirect(url_for('auth.manage'))
     users = (User.query.order_by(User.password_hold.desc())
-             .order_by(User.admin.desc()).order_by('firstname').all())
+             .order_by(User.retired).order_by(User.admin.desc())
+             .order_by(func.lower(User.firstname)).all())
     for user in users:
         user.manage_form = ManageUserForm(user_=user.id)
         manageforms.append(user.manage_form)
     for form in manageforms:
         if form.submit_.data and form.validate_on_submit():
-            if (form.action_.data == 'del') or (
-                    form.action2_.data == 'del'):
-                # Add a confirmation warning.
-                # This cannot be undone.
+            if (form.action_.data == 'ret') or (
+                    form.action2_.data == 'ret'):
                 user = User.query.get(form.user_.data)
-                flash('Deleted {}.'.format(user))
-                db.session.delete(user)
+                user.retired = 1
+                import random
+                user.set_password(str(random.randrange(1,99999999)))
                 db.session.commit()
+                flash('Retired {}.'.format(user.username))
             elif form.action_.data == 'adm':
                 User.query.get(form.user_.data).admin = True
                 db.session.commit()
             elif form.action2_.data == 'rma':
                 User.query.get(form.user_.data).admin = False
+                db.session.commit()
+            elif form.action3_.data == 'unr':
+                user = User.query.get(form.user_.data)
+                user.retired = False
+                db.session.commit()
+            elif form.action3_.data == 'del':
+                db.session.remove(User.query.get(form.user_.data))
                 db.session.commit()
             elif form.approve.data:
                 u = User.query.get(form.user_.data)
@@ -131,5 +133,4 @@ def manage():
                  
             return redirect(url_for('auth.manage'))
     return render_template('auth/manage.html', title='Manage',
-                           inviteform=inviteform,
                            manageforms=manageforms, users=users)
