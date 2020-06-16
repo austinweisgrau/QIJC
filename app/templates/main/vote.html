@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block app_content %}
   <h1>Vote</h1>
   <form action='' method='post'>
     {% for j in range(voteforms|length) %}
@@ -19,7 +19,7 @@
 	  {{ i[1].vote_den(size=1) }}
 	  {{ i[1].lock() }}
 	{% endif %}
-      </div><br>
+      </div></div>
     {% endfor %}
     <br>
     {{ voteform.submit() }}

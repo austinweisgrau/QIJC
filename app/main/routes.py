@@ -60,7 +60,8 @@ def vote():
         return redirect(url_for('main.vote'))
     return render_template('main/vote.html', title='Vote',
                            showsub=True, locked=locked,
-                           voteform=voteform, voteforms=voteforms)
+                           voteform=voteform, voteforms=voteforms,
+                               extras=True)
 
 @bp.route('/user/<username>', methods=['GET', 'POST'])
 @login_required
