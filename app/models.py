@@ -1,6 +1,6 @@
 from flask import current_app
 from app import db, login
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import time
 import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -61,13 +61,14 @@ class User(UserMixin, db.Model):
         hp = 0
         def calc(which):
             nonlocal hp
-            for p in list(Paper.query.filter(which[0] == self).all()):
+            for p in list(Paper.query.filter(which[0] == self)
+                          .filter(getattr(Paper, which[1])
+                                 >= (datetime.now()
+                                     - timedelta(weeks=7))).all()):
                 if getattr(p, which[1]):
                     lag = datetime.now().date() - getattr(p, which[1])
                     lag = lag.days/7
-                    print(f'lag is {lag}')
                     hp += 5 * ((3/4)**(lag))
-                    print(f'hp is {hp}')
         calc([Paper.subber, 'timestamp'])
         calc([Paper.volunteer, 'voted'])
         hp = int(hp)

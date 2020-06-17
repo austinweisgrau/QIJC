@@ -89,9 +89,7 @@ def user(username):
 def history():
     week = request.args.get('week', None)
     if week:
-        print(week)
         papers = Paper.query.filter_by(voted = week).all()
-        print(len(papers))
         return render_template('main/history.html', papers=papers,
                                showvote=True, showsub=True)
     weeks = [paper.voted for paper
