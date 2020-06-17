@@ -2,7 +2,8 @@
 
 ## Accessing the QIJC web application
 
-A mockup of this website can be found deployed on an [AWS EC2 Instance here](). \
+A mockup of this website can be found deployed on an [AWS EC2 Instance 
+here](http://ec2-54-186-242-58.us-west-2.compute.amazonaws.com). \
 The actual deployment is used by a NIST research lab at CU Boulder. \
 The app can be launched on a local machine after installing dependencies and executing "flask run" from the command line, then accessing http://localhost:5000. More detailed instructions are below.
 
