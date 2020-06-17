@@ -41,16 +41,18 @@
       {% set paper = i[0] %}
       {% include 'main/_paper.html' %}
       {{ i[1].hidden_tag() }}
-      {% if i[0].subber==current_user %}
-	{{ i[1].unsubmit() }}
-      {% endif %}
-      {% if i[0].volunteer==current_user %}
-	{{ i[1].unvolunteer() }}
-      {% endif %}
-      {% if not i[0].volunteer %}
-	{{ i[1].volunteer() }}
-      {% endif %}
-      {{ i[1].comment }}
+      <div class='vote'>
+	{% if i[0].subber==current_user %}
+	  {{ i[1].unsubmit() }}
+	{% endif %}
+	{% if i[0].volunteer==current_user %}
+	  {{ i[1].unvolunteer() }}
+	{% endif %}
+	{% if not i[0].volunteer %}
+	  {{ i[1].volunteer() }}
+	{% endif %}
+	{{ i[1].comment }}
+      </div>
       {##}</div>
     {% endfor %}
 </form>

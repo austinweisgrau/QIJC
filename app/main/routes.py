@@ -28,7 +28,7 @@ def index():
     users = User.query.order_by(User.hp.desc()).all()
     return render_template('main/index.html', users=users)
 
-locked = {'latest': None}
+locked = {'latest': None, 'scroll': None}
 @bp.route('/vote', methods=['GET', 'POST'])
 @login_required
 def vote():
@@ -48,6 +48,7 @@ def vote():
         if data['lock']:
             locked[i] = data['vote_den']
             locked['latest'] = data['vote_den']
+            locked['scroll'] = paper.id
         if data['vote_num'] and voteform.submit.data: #val on num
             paper.score_n = data['vote_num']
             paper.score_d = locked[i]

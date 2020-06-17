@@ -6,6 +6,7 @@
     {% for j in range(voteforms|length) %}
       {% set i = voteforms[j] %}
       {% set paper = i[0] %}
+      <div id='{{ paper.id }}'></div>
       {% include 'main/_paper.html' %}
       {{ i[1].hidden_tag() }}
       <div class='vote'>
@@ -19,9 +20,21 @@
 	  {{ i[1].vote_den(size=1) }}
 	  {{ i[1].lock() }}
 	{% endif %}
-      </div></div>
-    {% endfor %}
-    <br>
-    {{ voteform.submit() }}
-  </form>
+</div></div>
+{% endfor %}
+<br>
+{{ voteform.submit() }}
+</form>
 {% endblock %}
+
+{% block scripts %}
+  {{super()}}
+  {% if locked['scroll'] %}
+    <script>
+      $('html, body').animate({
+      scrollTop: $("#{{ locked['scroll'] }}").offset().top
+      }, 300);
+    </script>
+  {% endif %}
+{% endblock %}
+

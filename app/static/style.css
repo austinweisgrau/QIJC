@@ -44,7 +44,6 @@ tr:hover a{
 }
 
 .table-hover {
-/*    max-width: 900px; */
     border: 2px solid black;
     border-radius: 20px;
     padding: 10px;
