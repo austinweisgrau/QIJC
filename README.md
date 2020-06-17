@@ -2,8 +2,8 @@
 
 ## Accessing the QIJC web application
 
-A mockup of this website can be found deployed on an [AWS EC2 Instance here]().\
-The actual deployment is used by a NIST research lab at CU Boulder.\
+A mockup of this website can be found deployed on an [AWS EC2 Instance here](). \
+The actual deployment is used by a NIST research lab at CU Boulder. \
 The app can be launched on a local machine after installing dependencies and executing "flask run" from the command line, then accessing http://localhost:5000. More detailed instructions are below.
 
 ## Features
@@ -22,15 +22,15 @@ QIJC serves a journal club. Users request accounts from the administrator. Once 
 
 ## Detailed instructions to run application on local machine:
 
-Clone repo:\
-git clone https://github.com/aradox66/QIJC.git\
-cd QIJC\
+Clone repo: \
+git clone https://github.com/aradox66/QIJC.git \
+cd QIJC
 
-Create virtual environmental and install dependencies:\
-python3.6 -m venv venv/\
-source venv/bin/activate\
-pip install -r requirements.txt\
+Create virtual environmental and install dependencies: \
+python3.6 -m venv venv/ \
+source venv/bin/activate \
+pip install -r requirements.txt
 
-Launch with flask from main folder:\
-export FLASK_APP = main.py\
+Launch with flask from main folder: \
+export FLASK_APP = main.py \
 flask run
