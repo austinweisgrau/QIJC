@@ -18,7 +18,11 @@ QIJC serves a journal club. Users request accounts from the administrator. Once 
 * Blueprints with Flask-Blueprint
 * SQLite with Flask-SQLAlchemy
 * Outgoing mail service with Flask-Mail
+* Sessions with Flask-Session
 * Views rendered with HTML, CSS, Bootstrap & Jinja2
+
+## Maintenance Specifications
+This application is written in Python 3.6. All package requirements are kept up to date in the requirements.txt file.
 
 ## Licensing
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
