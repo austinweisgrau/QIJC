@@ -4,6 +4,11 @@
 {% if title %}{{ title }} - {% endif %}QIJC
 {% endblock %}
 
+{% block head %}
+{{ super() }}
+<link rel'icon' type='image/png' href='{{ url_for('static', filename='icon.svg') }}' />
+{% endblock %}
+
 {% block navbar %}
 <nav class='navbar navbar-default'>
   <div class='container'>

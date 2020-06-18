@@ -15,6 +15,7 @@ QIJC serves a journal club. Users request accounts from the administrator. Once 
 * User authentication with Flask-Login
 * WTForms with Flask-WTF
 * Bootstrap with Flask-Bootstrap
+* Blueprints with Flask-Blueprint
 * SQLite with Flask-SQLAlchemy
 * Outgoing mail service with Flask-Mail
 * Views rendered with HTML, CSS, Bootstrap & Jinja2
