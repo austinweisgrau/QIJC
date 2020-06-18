@@ -16,4 +16,5 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = [os.environ.get('ADMINS_EMAIL')]
     LANGUAGES = ['en']
+    SESSION_TYPE = 'filesystem'
 

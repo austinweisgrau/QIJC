@@ -2,7 +2,8 @@ from flask import flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms import SubmitField, SelectField, HiddenField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
+from wtforms.validators import (DataRequired, ValidationError, Email,
+                                EqualTo, Optional)
 from app.models import User
 
 class LoginForm(FlaskForm):
@@ -15,7 +16,7 @@ class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     firstname = StringField('First Name', validators=[DataRequired()])
     lastname = StringField('Last Name', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email = StringField('Email (optional)', validators=[Optional(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField('Repeat Password', validators=[
         DataRequired(), EqualTo('password')])

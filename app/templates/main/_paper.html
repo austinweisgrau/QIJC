@@ -23,7 +23,8 @@
 	</span>{% for i in comment  %}{{ i }}<br>{% endfor %}</div>
       {% endif %}{% endif %}
       {% if showvote %}
-      <span class='votes'>{{ paper.score_n }}/{{ paper.score_d }} votes.
+      <span class='votes'>
+	{{ paper.score_n }}/{{ paper.score_d }} votes.
       </span>
       {% endif %}
     </td>

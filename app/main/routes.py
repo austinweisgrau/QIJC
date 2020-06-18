@@ -1,7 +1,7 @@
 from app import db
 from app.main import bp
 from flask import (Flask, render_template, request,
-                   flash, redirect, url_for)
+                   flash, redirect, url_for, session)
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
 from app.main.forms import (PaperSubmissionForm, ManualSubmissionForm,
@@ -11,6 +11,7 @@ from app.auth.forms import ChangePasswordForm, ChangeEmailForm
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
 from app.models import User, Paper
+from sqlalchemy import cast, Float
 from app.main.scraper import Scraper
 from app.email import send_abstracts
 from textwrap import dedent
@@ -19,7 +20,7 @@ last_month = datetime.today() - timedelta(days = 30)
 
 @bp.route('/')
 @bp.route('/index')
-#@login_required
+@login_required
 def index():
     for user in User.query.all():
         if user.hp != user.hotpoints():
@@ -28,12 +29,10 @@ def index():
     users = User.query.order_by(User.hp.desc()).all()
     return render_template('main/index.html', users=users)
 
-locked = {'latest': None, 'scroll': None}
 @bp.route('/vote', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def vote():
-    global locked
-    flash(locked)
+    print('beginning')
     papers_v = (Paper.query.filter(Paper.voted==None)
               .filter(Paper.volunteer_id != None)
               .order_by(Paper.timestamp.desc()).all())
@@ -44,29 +43,30 @@ def vote():
     voteforms = list(zip(papers, voteform.votes))
     votes = 0
     for i in range(len(voteform.data['votes'])):
+        print('some votes read')
         paper = voteforms[i][0]
         data = voteform.data['votes'][i]
         if data['lock']:
-            locked[i] = data['vote_den']
-            locked['latest'] = data['vote_den']
-            locked['scroll'] = paper.id
+            session[i] = data['vote_den']
+            session['latest'] = data['vote_den']
+            session['scroll'] = paper.id
         if data['vote_num'] and voteform.submit.data: #val on num
             paper.score_n = data['vote_num']
-            paper.score_d = locked[i]
+            paper.score_d = session[i]
             paper.voted = datetime.now().date()
             db.session.commit()
             votes += 1
     if votes and voteform.submit.data:
-        locked = {'latest': None}
         flash('{} votes counted.'.format(votes))
-        return redirect(url_for('main.vote'))
+        week = datetime.now().date().strftime('%Y-%m-%d')
+        return redirect(url_for('main.history', week=week))
     return render_template('main/vote.html', title='Vote',
-                           showsub=True, locked=locked,
+                           showsub=True, locked=session,
                            voteform=voteform, voteforms=voteforms,
                                extras=True)
 
 @bp.route('/user/<username>', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def user(username):
     form = ChangePasswordForm()
     if form.validate_on_submit():
@@ -86,11 +86,19 @@ def user(username):
                            current_user=current_user)
 
 @bp.route('/history')
-#@login_required
+@login_required
 def history():
+    poppers = ['latest', 'scroll']
+    poppers.extend([i for i in range(99)])
+    for i in poppers:
+        if i in session:
+            session.pop(i, None)
     week = request.args.get('week', None)
     if week:
-        papers = Paper.query.filter_by(voted = week).all()
+        papers = (Paper.query.filter_by(voted = week)
+                      .order_by(cast(Paper.score_n, Float)
+                                /cast(Paper.score_d, Float)).all())
+        papers.reverse()
         return render_template('main/history.html', papers=papers,
                                showvote=True, showsub=True)
     weeks = [paper.voted for paper
@@ -100,7 +108,7 @@ def history():
     return render_template('main/history.html', weeks=weeks)
 
 @bp.route('/search', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def search():
     form = SearchForm()
     form.subber.choices = form.presenter.choices = ([(None, 'None')]
@@ -142,7 +150,7 @@ def search():
     return render_template('main/search.html', form=form)
 
 @bp.route('/submit_m', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def submit_m():
     form = ManualSubmissionForm()
     if form.validate_on_submit():
@@ -162,7 +170,7 @@ def submit_m():
                            form=form, title='Submit Paper', showsub=True)
 
 @bp.route('/submit', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def submit():
     form = PaperSubmissionForm()
     if form.submit.data and form.validate_on_submit():
@@ -219,7 +227,7 @@ def submit():
                             editforms=editforms, extras=True)
 
 @bp.route('/comment', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def comment():
     paper = Paper.query.get(request.args.get('id'))
     form = CommentForm()
@@ -235,7 +243,7 @@ def comment():
                                title='Comment')
 
 @bp.route('/message', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def message():
     form = MessageForm()
     if form.validate_on_submit():
