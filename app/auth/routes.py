@@ -49,10 +49,10 @@ def register():
         user = User(username=form.username.data, email=form.email.data,
                     firstname=form.firstname.data,
                     lastname=form.lastname.data)
-        user.set_password(form.password.data, 1)
+        user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Successfully registered. Sent to admins for approval.')
+        flash('Successfully registered.')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register',
                            form=form)

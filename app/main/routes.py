@@ -19,7 +19,7 @@ last_month = datetime.today() - timedelta(days = 30)
 
 @bp.route('/')
 @bp.route('/index')
-@login_required
+#@login_required
 def index():
     for user in User.query.all():
         if user.hp != user.hotpoints():
@@ -30,7 +30,7 @@ def index():
 
 locked = {'latest': None, 'scroll': None}
 @bp.route('/vote', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def vote():
     global locked
     papers_v = (Paper.query.filter(Paper.voted==None)
@@ -65,7 +65,7 @@ def vote():
                                extras=True)
 
 @bp.route('/user/<username>', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def user(username):
     form = ChangePasswordForm()
     if form.validate_on_submit():
@@ -85,7 +85,7 @@ def user(username):
                            current_user=current_user)
 
 @bp.route('/history')
-@login_required
+#@login_required
 def history():
     week = request.args.get('week', None)
     if week:
@@ -99,7 +99,7 @@ def history():
     return render_template('main/history.html', weeks=weeks)
 
 @bp.route('/search', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def search():
     form = SearchForm()
     form.subber.choices = form.presenter.choices = ([(None, 'None')]
@@ -141,7 +141,7 @@ def search():
     return render_template('main/search.html', form=form)
 
 @bp.route('/submit_m', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def submit_m():
     form = ManualSubmissionForm()
     if form.validate_on_submit():
@@ -161,7 +161,7 @@ def submit_m():
                            form=form, title='Submit Paper', showsub=True)
 
 @bp.route('/submit', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def submit():
     form = PaperSubmissionForm()
     if form.submit.data and form.validate_on_submit():
@@ -218,7 +218,7 @@ def submit():
                             editforms=editforms, extras=True)
 
 @bp.route('/comment', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def comment():
     paper = Paper.query.get(request.args.get('id'))
     form = CommentForm()
@@ -234,7 +234,7 @@ def comment():
                                title='Comment')
 
 @bp.route('/message', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def message():
     form = MessageForm()
     if form.validate_on_submit():
