@@ -33,6 +33,7 @@ locked = {'latest': None, 'scroll': None}
 #@login_required
 def vote():
     global locked
+    flash(locked)
     papers_v = (Paper.query.filter(Paper.voted==None)
               .filter(Paper.volunteer_id != None)
               .order_by(Paper.timestamp.desc()).all())
