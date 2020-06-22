@@ -24,8 +24,7 @@ def login():
             flash('Admin has not yet approved account.')
             return redirect(url_for('auth.login'))
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
-            flash('Recover account? <Not yet functional>')
+            flash('Incorrect password.')
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -49,10 +48,10 @@ def register():
         user = User(username=form.username.data, email=form.email.data,
                     firstname=form.firstname.data,
                     lastname=form.lastname.data)
-        user.set_password(form.password.data)
+        user.set_password(form.password.data, 1)
         db.session.add(user)
         db.session.commit()
-        flash('Successfully registered.')
+        flash('Account requested, await admin approval.')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register',
                            form=form)
@@ -123,14 +122,17 @@ def manage():
                 user.retired = False
                 db.session.commit()
             elif form.action3_.data == 'del':
-                db.session.remove(User.query.get(form.user_.data))
+                flash(form.user_.data)
+                flash(User.query.get(form.user_.data))
+                print(form.user_.data)
+                print(User.query.get(form.user_.data))
+                db.session.delete(User.query.get(form.user_.data))
                 db.session.commit()
             elif form.approve.data:
                 u = User.query.get(form.user_.data)
                 u.password_hash = u.password_hold
                 u.password_hold = None
                 db.session.commit()
-                 
             return redirect(url_for('auth.manage'))
     return render_template('auth/manage.html', title='Manage',
                            manageforms=manageforms, users=users)
