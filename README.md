@@ -2,8 +2,7 @@
 
 ## Accessing the QIJC web application
 
-A mockup of this website (with relaxed user permissions) can be found deployed on an [AWS EC2 Instance 
-here](http://ec2-54-186-242-58.us-west-2.compute.amazonaws.com) and on [Heroku](https://qijcmockup.herokuapp.com). \
+A mockup of this website (with relaxed user permissions) can be found deployed on [Heroku](https://qijcmockup.herokuapp.com). \
 The actual deployment is used by a NIST research lab at CU Boulder. \
 The app can be launched on a local machine after installing dependencies and executing "flask run" from the command line, then accessing http://localhost:5000. More detailed instructions are below.
 
@@ -18,7 +17,11 @@ QIJC serves a journal club. Users request accounts from the administrator. Once 
 * Blueprints with Flask-Blueprint
 * SQLite with Flask-SQLAlchemy
 * Outgoing mail service with Flask-Mail
+* Sessions with Flask-Session
 * Views rendered with HTML, CSS, Bootstrap & Jinja2
+
+## Maintenance Specifications
+This application is written in Python 3.6. All package requirements are kept up to date in the requirements.txt file.
 
 ## Licensing
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
