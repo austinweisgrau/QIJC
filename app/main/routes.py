@@ -26,8 +26,86 @@ def index():
         if user.hp != user.hotpoints():
             user.hp = user.hotpoints()
             db.session.commit()
-    users = User.query.order_by(User.hp.desc()).all()
+    users = (User.query.filter(User.retired == 0)
+             .order_by(User.hp.desc()).all())
     return render_template('main/index.html', users=users)
+
+@bp.route('/submit', methods=['GET', 'POST'])
+@login_required
+def submit():
+    form = PaperSubmissionForm()
+    if form.submit.data and form.validate_on_submit():
+        link_str = form.link.data.split('?')[0].split('.pdf')[0]
+        scraper = Scraper()
+        scraper.get(link_str)
+        if scraper.failed:
+            flash('Scraping failed, submit manually.')
+            return redirect(url_for('main.submit_m'))
+        if scraper.error:
+            flash('Scraping error, check link or submit manually.')
+            return redirect(url_for('main.submit'))
+        authors = ", ".join(scraper.authors)
+        abstract = scraper.abstract
+        title = scraper.title
+        if form.comments.data:
+            comment_ = (str(current_user.firstname) + ': '
+                        + form.comments.data)
+        else:
+            comment_ = None
+        p = Paper(link=link_str, subber=current_user,
+                  authors=authors, abstract=scraper.abstract,
+                  title=scraper.title, comment=comment_)
+        db.session.add(p)
+        db.session.commit()
+        if form.volunteering.data:
+            Paper.query.filter_by(
+                link=link_str).first().volunteer = current_user
+            db.session.commit()
+        flash('Paper submitted.')
+        return redirect(url_for('main.submit'))
+    papers = (Paper.query.filter(Paper.voted==None)
+              .order_by(Paper.timestamp.desc()).all())
+    editform = FullEditForm(edits=range(len(papers)))
+    editforms = list(zip(papers, editform.edits))
+    for i in range(len(editform.data['edits'])):
+        paper = editforms[i][0]
+        button = editform.data['edits'][i]
+        if button['volunteer']:
+            paper.volunteer = current_user
+        elif button['unvolunteer']:
+            paper.volunteer = None
+        elif button['unsubmit']:
+            db.session.delete(paper)
+        elif button['comment']:
+            return redirect(url_for('main.comment', id=paper.id))
+        else:
+            continue
+        db.session.commit()
+        return redirect(url_for('main.submit'))
+    return render_template('main/submit.html', form=form,
+                            title='Submit Paper', showsub=True,
+                            editform=editform,
+                            editforms=editforms, extras=True)
+
+@bp.route('/submit_m', methods=['GET', 'POST'])
+@login_required
+def submit_m():
+    form = ManualSubmissionForm()
+    if form.validate_on_submit():
+        p = Paper(link=form.link.data, subber=current_user,
+                  authors=form.authors.data, abstract=form.abstract.data,
+                  title=form.title.data, comment=form.comments.data)
+        db.session.add(p)
+        db.session.commit()
+        if form.volunteering.data:
+            Paper.query.filter_by(
+                link=form.link.data).first().volunteer = current_user
+            db.session.commit()
+        flash('Paper submitted.')
+        return redirect(url_for('main.submit'))
+    papers = Paper.query.filter(Paper.timestamp >= last_month).all()
+    return render_template('main/submit_m.html', papers=papers,
+                           form=form, title='Submit Paper', showsub=True)
 
 @bp.route('/vote', methods=['GET', 'POST'])
 @login_required
@@ -102,9 +180,9 @@ def history():
         return render_template('main/history.html', papers=papers,
                                showvote=True, showsub=True)
     weeks = [paper.voted for paper
-             in Paper.query.group_by(Paper.voted).all()]
+             in Paper.query.group_by(Paper.voted).all()
+             if paper.voted != None]
     weeks.reverse()
-    weeks.pop(-1)
     return render_template('main/history.html', weeks=weeks)
 
 @bp.route('/search', methods=['GET', 'POST'])
@@ -148,83 +226,6 @@ def search():
         return render_template('main/search.html', papers=papers,
                                form=form, showsub=True)
     return render_template('main/search.html', form=form)
-
-@bp.route('/submit_m', methods=['GET', 'POST'])
-@login_required
-def submit_m():
-    form = ManualSubmissionForm()
-    if form.validate_on_submit():
-        p = Paper(link=form.link.data, subber=current_user,
-                  authors=form.authors.data, abstract=form.abstract.data,
-                  title=form.title.data, comment=form.comments.data)
-        db.session.add(p)
-        db.session.commit()
-        if form.volunteering.data:
-            Paper.query.filter_by(
-                link=form.link.data).first().volunteer = current_user
-            db.session.commit()
-        flash('Paper submitted.')
-        return redirect(url_for('main.submit'))
-    papers = Paper.query.filter(Paper.timestamp >= last_month).all()
-    return render_template('main/submit_m.html', papers=papers,
-                           form=form, title='Submit Paper', showsub=True)
-
-@bp.route('/submit', methods=['GET', 'POST'])
-@login_required
-def submit():
-    form = PaperSubmissionForm()
-    if form.submit.data and form.validate_on_submit():
-        link_str = form.link.data.split('?')[0].split('.pdf')[0]
-        scraper = Scraper()
-        scraper.get(link_str)
-        if scraper.failed:
-            flash('Scraping failed, submit manually.')
-            return redirect(url_for('main.submit_m'))
-        if scraper.error:
-            flash('Scraping error, check link or submit manually.')
-            return redirect(url_for('main.submit'))
-        authors = ", ".join(scraper.authors)
-        abstract = scraper.abstract
-        title = scraper.title
-        if form.comments.data:
-            comment_ = (str(current_user.firstname) + ': '
-                        + form.comments.data)
-        else:
-            comment_ = None
-        p = Paper(link=link_str, subber=current_user,
-                  authors=authors, abstract=scraper.abstract,
-                  title=scraper.title, comment=comment_)
-        db.session.add(p)
-        db.session.commit()
-        if form.volunteering.data:
-            Paper.query.filter_by(
-                link=link_str).first().volunteer = current_user
-            db.session.commit()
-        flash('Paper submitted.')
-        return redirect(url_for('main.submit'))
-    papers = (Paper.query.filter(Paper.voted==None)
-              .order_by(Paper.timestamp.desc()).all())
-    editform = FullEditForm(edits=range(len(papers)))
-    editforms = list(zip(papers, editform.edits))
-    for i in range(len(editform.data['edits'])):
-        paper = editforms[i][0]
-        button = editform.data['edits'][i]
-        if button['volunteer']:
-            paper.volunteer = current_user
-        elif button['unvolunteer']:
-            paper.volunteer = None
-        elif button['unsubmit']:
-            db.session.delete(paper)
-        elif button['comment']:
-            return redirect(url_for('main.comment', id=paper.id))
-        else:
-            continue
-        db.session.commit()
-        return redirect(url_for('main.submit'))
-    return render_template('main/submit.html', form=form,
-                            title='Submit Paper', showsub=True,
-                            editform=editform,
-                            editforms=editforms, extras=True)
 
 @bp.route('/comment', methods=['GET', 'POST'])
 @login_required

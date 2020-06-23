@@ -4,6 +4,7 @@ from wtforms import StringField, PasswordField, BooleanField
 from wtforms import SubmitField, SelectField, HiddenField
 from wtforms.validators import (DataRequired, ValidationError, Email,
                                 EqualTo)
+from flask_login import current_user
 from app.models import User
 
 class LoginForm(FlaskForm):

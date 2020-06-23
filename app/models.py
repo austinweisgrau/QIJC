@@ -96,4 +96,4 @@ class Paper(db.Model):
                              foreign_keys=[volunteer_id])
     
     def __repr__(self):
-        return '<Post {}>'.format(self.title)
+        return '<Paper {}>'.format(self.title)

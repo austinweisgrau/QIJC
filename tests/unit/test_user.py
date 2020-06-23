@@ -2,13 +2,9 @@ from datetime import datetime, timedelta
 import unittest
 from app import create_app, db
 from app.models import User, Paper
-from config import Config
+from conftest import TestConfig
 
-class TestConfig(Config):
-    TESTING = True
-    SQL_ALCHEMY_DATABASE_URI = 'sqlite://'    
-
-class UserModelCase(unittest.TestCase):
+class TestUserModelCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app(TestConfig)
         self.app_context = self.app.app_context()
@@ -59,6 +55,7 @@ class UserModelCase(unittest.TestCase):
         p2.volunteer = u1
         self.assertEqual(u1.vols[0], p2)
         self.assertEqual(u2.vols[0], p1)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
