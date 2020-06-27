@@ -16,7 +16,7 @@
     <td>
       <span class='title'>{{ paper.title }}</span><br>
       {{ paper.authors }}<br>
-      <a href='{{ paper.link }}'>{{ paper.link }}</a><br>
+      <a href='{{ paper.link }}' target='_blank'>{{ paper.link }}</a><br>
       {{ paper.abstract|replace('\\\\', '\\') }}<br>
       {% if showsub %}{% if paper.comment %}{% set comment = paper.comment.split('\n') %}
       <div class='comment'><span style='font-weight: bold;'>Comments:<br>

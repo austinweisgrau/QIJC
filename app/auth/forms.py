@@ -1,7 +1,7 @@
 from flask import flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField
-from wtforms import SubmitField, SelectField, HiddenField
+from wtforms import (StringField, PasswordField, BooleanField,
+                     SubmitField, SelectField, HiddenField)
 from wtforms.validators import (DataRequired, ValidationError, Email,
                                 EqualTo)
 from flask_login import current_user

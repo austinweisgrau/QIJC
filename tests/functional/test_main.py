@@ -93,3 +93,38 @@ class TestHistory():
             papers = Paper.query.filter(Paper.voted == date).all()
             for paper in papers:
                 assert bytes(paper.title, 'utf-8') in response.data
+
+@pytest.mark.usefixtures('auth_client')
+class TestProfile():
+    def recent_subs(self, auth_client):
+        '''
+        All user pages feature their recent paper submissions.
+        '''
+        for u in User.query.all():
+            response = auth_client.get(url_for('main.user',
+                                                   username=u.username))
+            recent_papers = Paper.query.filter(Paper.subber==u).all()[:8]
+            for r in recent_papers:
+                assert bytes(r.title, 'utf-8') in response.data
+
+@pytest.mark.usefixtures('auth_client')
+class TestSubmit():
+    def submit(self, auth_client):
+        response = auth_client.post(url_for('main.submit'), data=dict(
+            link='https://arxiv.org/abs/1912.11301',
+            comment='testing comment'), follow_redirects=True)
+        assert response.status_code == 200
+        def check(response):
+            assert b'Near-Infrared Polarimetry' in response.data
+            assert b'1912.11301' in response.data
+            assert b'outer circumbinary disk' in response.data
+            assert b'tian Thalmann, Edwin L. Turner' in response.data
+        check(response)
+        response = auth_client.get(url_for('main.vote'))
+        check(response)
+        response = auth_client.get(url_for('main.user',
+                                        username=current_user.username))
+        check(response)
+        response = auth_client.post(url_for('main.search'), data=dict(
+                                        title='Polarimetry'))
+        check(response)
