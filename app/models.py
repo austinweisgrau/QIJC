@@ -89,11 +89,14 @@ class Paper(db.Model):
     # Relationships
     subber_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     volunteer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    vol_later_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     subber = db.relationship('User', backref='subs',
                              foreign_keys=[subber_id])
     volunteer = db.relationship('User', backref='vols',
                              foreign_keys=[volunteer_id])
+    vol_later = db.relationship('User', backref='later_vols',
+                                 foreign_keys=[vol_later_id])]
     
     def __repr__(self):
         return '<Paper {}>'.format(self.title)

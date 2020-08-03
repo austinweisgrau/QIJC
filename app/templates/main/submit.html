@@ -48,8 +48,12 @@
 	{% if i[0].volunteer==current_user %}
 	  {{ i[1].unvolunteer() }}
 	{% endif %}
-	{% if not i[0].volunteer %}
+	{% if i[0].vol_later==current_user %}
+	  {{ i[1].unvol_later() }}
+	{% endif %}
+	{% if not i[0].volunteer & not i[0].vol_later %}
 	  {{ i[1].volunteer() }}
+	  {{ i[1].vol_later() }}
 	{% endif %}
 	{{ i[1].comment }}
       </div>
