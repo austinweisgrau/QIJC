@@ -96,7 +96,7 @@ class Paper(db.Model):
     volunteer = db.relationship('User', backref='vols',
                              foreign_keys=[volunteer_id])
     vol_later = db.relationship('User', backref='later_vols',
-                                 foreign_keys=[vol_later_id])]
+                                 foreign_keys=[vol_later_id])
     
     def __repr__(self):
         return '<Paper {}>'.format(self.title)
