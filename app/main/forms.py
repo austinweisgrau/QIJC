@@ -91,8 +91,7 @@ class EditForm(FlaskForm):
     comment = SubmitField('Comment')
     volunteer = SubmitField('Volunteer Now')
     vol_later = SubmitField('Volunteer Later')
-    unvolunteer = SubmitField('unVolunteer Now')
-    unvol_later = SubmitField('unVolunteer Later')
+    unvolunteer = SubmitField('unVolunteer')
     unsubmit = SubmitField('unSubmit')
 
 class FullEditForm(FlaskForm):

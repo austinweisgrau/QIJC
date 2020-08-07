@@ -72,8 +72,13 @@ def submit():
         button = editform.data['edits'][i]
         if button['volunteer']:
             paper.volunteer = current_user
+        elif button['vol_later']:
+            paper.vol_later = current_user
         elif button['unvolunteer']:
-            paper.volunteer = None
+            if paper.volunteer:
+                paper.volunteer = None
+            elif paper.vol_later:
+                paper.vol_later = None
         elif button['unsubmit']:
             db.session.delete(paper)
         elif button['comment']:
@@ -110,7 +115,6 @@ def submit_m():
 @bp.route('/vote', methods=['GET', 'POST'])
 @login_required
 def vote():
-    print('beginning')
     papers_v = (Paper.query.filter(Paper.voted==None)
               .filter(Paper.volunteer_id != None)
               .order_by(Paper.timestamp.desc()).all())
@@ -121,7 +125,6 @@ def vote():
     voteforms = list(zip(papers, voteform.votes))
     votes = 0
     for i in range(len(voteform.data['votes'])):
-        print('some votes read')
         paper = voteforms[i][0]
         data = voteform.data['votes'][i]
         if data['lock']:

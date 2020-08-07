@@ -45,13 +45,10 @@
 	{% if i[0].subber==current_user %}
 	  {{ i[1].unsubmit() }}
 	{% endif %}
-	{% if i[0].volunteer==current_user %}
+	{% if (i[0].volunteer==current_user) or (i[0].vol_later==current_user) %}
 	  {{ i[1].unvolunteer() }}
 	{% endif %}
-	{% if i[0].vol_later==current_user %}
-	  {{ i[1].unvol_later() }}
-	{% endif %}
-	{% if not i[0].volunteer & not i[0].vol_later %}
+	{% if (not i[0].volunteer) and (not i[0].vol_later) %}
 	  {{ i[1].volunteer() }}
 	  {{ i[1].vol_later() }}
 	{% endif %}
