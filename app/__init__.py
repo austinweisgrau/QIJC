@@ -16,6 +16,12 @@ bootstrap = Bootstrap()
 session = Session()
 
 def create_app(config_class=Config):
+    '''
+    This application factory returns a Flask app
+    with all the modules initalized.
+    This kind of setup is useful for testing.
+    The app is broken up into 3 blueprints.
+    '''
     app = Flask(__name__)
     app.config.from_object(config_class)
 

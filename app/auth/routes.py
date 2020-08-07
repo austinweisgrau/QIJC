@@ -15,6 +15,15 @@ from app.email import send_password_reset_email
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    '''
+    If the user is already authenticated, route them to the index.
+    If the user is not authenticated, send them login.html.
+    If the form on login.html is posted and validates,
+      check the password. If it's good, log them in
+      and redirect them to the index.
+    If the password_hash is set to 'waiting', the admin
+      has not yet approved their account.
+    '''
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = LoginForm()
@@ -41,6 +50,14 @@ def logout():
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
+    '''
+    Send the register.html page with the form.
+    If the form posts and validates, create a new 
+    user object and add it into the database.
+    set_password is called with argument=1
+      so that the account will be in limbo
+      until the admin approves their account.
+    '''
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = RegistrationForm()
@@ -58,6 +75,11 @@ def register():
 
 @bp.route('/reset_password_req', methods=['GET', 'POST'])
 def reset_password_req():
+    '''
+    If the user requests a password reset,
+    look up their account by the email they submit.
+    If the account is found, send a reset email.
+    '''
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = ResetPasswordRequestForm()
@@ -75,6 +97,11 @@ def reset_password_req():
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    '''
+    Once the user gets the token in their email
+    they can come to this page. if the token validates,
+    they can access this page with the password reset form.
+    '''
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     user = User.verify_reset_password_token(token)
@@ -91,6 +118,12 @@ def reset_password(token):
 @bp.route('/manage', methods=['GET', 'POST'])
 @login_required
 def manage():
+    '''
+    Display all users in a table. Populate the table with forms.
+    If a form submits, do the appropriate action.
+    More detail on these in the form doc strings.
+    Refresh the page after any given form is submitted and processed.
+    '''
     manageforms = []
     if not current_user.admin:
         flash('Admin privilege required to manage.')
@@ -107,8 +140,8 @@ def manage():
                     form.action2_.data == 'ret'):
                 user = User.query.get(form.user_.data)
                 user.retired = 1
-                import random
-                user.set_password(str(random.randrange(1,99999999)))
+                from secrets import token_hex
+                user.set_password(token_hex())
                 db.session.commit()
                 flash('Retired {}.'.format(user.username))
             elif form.action_.data == 'adm':
